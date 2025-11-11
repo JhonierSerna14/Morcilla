@@ -2,25 +2,26 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  
   // Rutas públicas que no requieren autenticación
   const publicPaths = ['/login', '/register', '/api/auth']
-  const isPublicPath = publicPaths.some(path => 
-    request.nextUrl.pathname.startsWith(path)
-  )
+  const isPublicPath = publicPaths.some(path => pathname.startsWith(path)) || pathname === '/'
   
   // Si es ruta pública, permitir acceso
-  if (isPublicPath || request.nextUrl.pathname === '/') {
+  if (isPublicPath) {
     return NextResponse.next()
   }
 
-  // Verificar si existe token de sesión (simplificado para Edge Runtime)
-  const sessionToken = request.cookies.get('next-auth.session-token')?.value ||
-                      request.cookies.get('__Secure-next-auth.session-token')?.value
+  // Verificar token de sesión con múltiples nombres posibles
+  const sessionToken = 
+    request.cookies.get('__Secure-next-auth.session-token')?.value ||
+    request.cookies.get('next-auth.session-token')?.value
 
-  // Si no hay token, redirigir a login
+  // Si no hay token de sesión, redirigir a login
   if (!sessionToken) {
     const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('from', request.nextUrl.pathname)
+    loginUrl.searchParams.set('from', pathname)
     return NextResponse.redirect(loginUrl)
   }
 

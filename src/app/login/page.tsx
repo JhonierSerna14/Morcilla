@@ -31,8 +31,12 @@ function LoginForm() {
 
       if (result?.error) {
         setError("Email o contraseña incorrectos")
-      } else {
-        router.push(from)
+      } else if (result?.ok) {
+        // Esperar un momento para que las cookies se establezcan
+        await new Promise(resolve => setTimeout(resolve, 100))
+        
+        // Forzar recarga de la página para asegurar que las cookies se lean
+        window.location.href = from
       }
     } catch (error) {
       setError("Error al iniciar sesión")
