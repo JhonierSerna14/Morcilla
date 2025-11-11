@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Search, Calculator, DollarSign, Scale, AlertCircle } from "lucide-react"
+import { formatBatchName } from "@/lib/batch-utils"
 
 interface Customer {
   id: string
@@ -17,6 +18,7 @@ interface ActiveBatch {
   id: string
   name: string
   number: number
+  productionDate: string
 }
 
 export default function SalesPage() {
@@ -31,7 +33,7 @@ export default function SalesPage() {
   // Form states
   const [saleForm, setSaleForm] = useState({
     pounds: "",
-    pricePerPound: "12000", // Precio por defecto
+    pricePerPound: "11000", // Precio por defecto
     paymentMethod: "EFECTIVO",
     paymentStatus: "PAID",
     notes: ""
@@ -85,27 +87,44 @@ export default function SalesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    // Validaciones con mensajes más amigables
     if (!selectedCustomer) {
-      alert("Debes seleccionar un cliente")
+      alert("⚠️ Primero debes buscar y seleccionar un cliente")
       return
     }
 
     if (!activeBatch) {
-      alert("No hay tanda activa. Crea una tanda antes de registrar ventas.")
+      alert("❌ No hay tanda activa. Ve al Dashboard y crea una nueva tanda antes de registrar ventas.")
       return
     }
 
-    const pounds = parseFloat(saleForm.pounds)
+    const pounds = parseInt(saleForm.pounds)
     const pricePerPound = parseFloat(saleForm.pricePerPound)
 
-    if (!pounds || pounds <= 0) {
-      alert("Ingresa una cantidad de libras válida")
+    if (!pounds || pounds <= 0 || !Number.isInteger(pounds)) {
+      alert("❌ Por favor ingresa una cantidad de libras válida (números enteros: 1, 2, 3...)")
+      return
+    }
+
+    if (pounds > 50) {
+      const confirm = window.confirm("⚠️ Estás registrando más de 50 libras. ¿Estás seguro?")
+      if (!confirm) return
+    }
+
+    // Validar método de pago si es pago inmediato
+    if (saleForm.paymentStatus === "PAID" && !saleForm.paymentMethod) {
+      alert("❌ Debes seleccionar cómo pagó el cliente")
       return
     }
 
     if (!pricePerPound || pricePerPound <= 0) {
-      alert("Ingresa un precio por libra válido")
+      alert("❌ Por favor ingresa un precio por libra válido (mayor a 0)")
       return
+    }
+
+    if (pricePerPound < 5000) {
+      const confirm = window.confirm("⚠️ El precio por libra parece muy bajo. ¿Estás seguro?")
+      if (!confirm) return
     }
 
     setSaving(true)
@@ -127,10 +146,18 @@ export default function SalesPage() {
       })
 
       if (response.ok) {
+        // Mostrar mensaje de éxito más detallado
+        const total = pounds * pricePerPound
+        alert(`✅ ¡Venta registrada exitosamente!\n\n` +
+              `Cliente: ${selectedCustomer.name}\n` +
+              `Cantidad: ${pounds} libras\n` +
+              `Total: $${total.toLocaleString()}\n` +
+              `Estado: ${saleForm.paymentStatus === 'PAID' ? 'Pagado' : 'A crédito'}`)
+        
         // Reset form
         setSaleForm({
           pounds: "",
-          pricePerPound: "12000",
+          pricePerPound: "11000",
           paymentMethod: "EFECTIVO",
           paymentStatus: "PAID",
           notes: ""
@@ -138,17 +165,15 @@ export default function SalesPage() {
         setSelectedCustomer(null)
         setSearchCustomer("")
         
-        alert("Venta registrada exitosamente")
-        
         // Refresh customers to update debt totals
         fetchCustomers()
       } else {
         const error = await response.json()
-        alert(error.error || "Error al registrar venta")
+        alert(`❌ Error al registrar la venta:\n${error.error || "Error desconocido"}`)
       }
     } catch (error) {
       console.error("Error creating sale:", error)
-      alert("Error al registrar venta")
+      alert("❌ Error de conexión. Verifica tu internet y vuelve a intentar.")
     } finally {
       setSaving(false)
     }
@@ -194,7 +219,7 @@ export default function SalesPage() {
           <div className="py-4">
             <h1 className="text-2xl font-bold text-gray-900">Nueva Venta</h1>
             <p className="text-gray-600">
-              Tanda Activa: <span className="font-semibold">{activeBatch.name}</span>
+              Tanda Activa: <span className="font-semibold">{formatBatchName(activeBatch)}</span>
             </p>
           </div>
         </div>
@@ -291,17 +316,20 @@ export default function SalesPage() {
                     <Scale className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
                       type="number"
-                      step="0.1"
-                      min="0.1"
-                      placeholder="0.0"
+                      step="1"
+                      min="1"
+                      placeholder="1"
                       value={saleForm.pounds}
-                      onChange={(e) =>
-                        setSaleForm({ ...saleForm, pounds: e.target.value })
-                      }
+                      onChange={(e) => {
+                        // Solo permitir números enteros
+                        const value = e.target.value.replace(/\D/g, '')
+                        setSaleForm({ ...saleForm, pounds: value })
+                      }}
                       className="pl-10 h-12"
                       required
                     />
                   </div>
+                  <p className="text-xs text-gray-500 mt-1">Solo libras enteras (1, 2, 3...)</p>
                 </div>
 
                 <div>
@@ -314,7 +342,7 @@ export default function SalesPage() {
                       type="number"
                       step="100"
                       min="0"
-                      placeholder="12000"
+                      placeholder="11000"
                       value={saleForm.pricePerPound}
                       onChange={(e) =>
                         setSaleForm({ ...saleForm, pricePerPound: e.target.value })
@@ -326,11 +354,34 @@ export default function SalesPage() {
                 </div>
               </div>
 
-              {/* Payment Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Payment Status */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Estado del pago *
+                </label>
+                <select
+                  value={saleForm.paymentStatus}
+                  onChange={(e) => {
+                    setSaleForm({ 
+                      ...saleForm, 
+                      paymentStatus: e.target.value,
+                      // Reset payment method cuando cambia el status
+                      paymentMethod: e.target.value === "PAID" ? "EFECTIVO" : ""
+                    })
+                  }}
+                  className="w-full h-12 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required
+                >
+                  <option value="PAID">Pagado (inmediato)</option>
+                  <option value="PENDING">A crédito</option>
+                </select>
+              </div>
+
+              {/* Payment Method - Solo mostrar si es pago inmediato */}
+              {saleForm.paymentStatus === "PAID" && (
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Método de pago *
+                    ¿Cómo pagó? *
                   </label>
                   <select
                     value={saleForm.paymentMethod}
@@ -344,24 +395,7 @@ export default function SalesPage() {
                     <option value="NEQUI">Nequi</option>
                   </select>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Estado del pago *
-                  </label>
-                  <select
-                    value={saleForm.paymentStatus}
-                    onChange={(e) =>
-                      setSaleForm({ ...saleForm, paymentStatus: e.target.value })
-                    }
-                    className="w-full h-12 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  >
-                    <option value="PAID">Pagado (inmediato)</option>
-                    <option value="PENDING">A crédito</option>
-                  </select>
-                </div>
-              </div>
+              )}
 
               {/* Notes */}
               <div>

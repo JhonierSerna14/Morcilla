@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,6 +19,7 @@ interface Customer {
 }
 
 export default function CustomersPage() {
+  const router = useRouter()
   const [customers, setCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
@@ -55,7 +57,18 @@ export default function CustomersPage() {
     e.preventDefault()
     
     if (!newCustomer.name.trim()) {
-      alert("El nombre es obligatorio")
+      alert("❌ El nombre del cliente es obligatorio")
+      return
+    }
+
+    if (newCustomer.name.trim().length < 2) {
+      alert("❌ El nombre debe tener al menos 2 caracteres")
+      return
+    }
+
+    // Validar teléfono si se proporciona
+    if (newCustomer.phone && newCustomer.phone.length > 0 && newCustomer.phone.length < 7) {
+      alert("❌ El teléfono debe tener al menos 7 dígitos")
       return
     }
 
@@ -69,16 +82,18 @@ export default function CustomersPage() {
       })
 
       if (response.ok) {
+        alert(`✅ ¡Cliente creado exitosamente!\n\nNombre: ${newCustomer.name.trim()}`)
+        
         setNewCustomer({ name: "", phone: "", address: "" })
         setShowCreateForm(false)
         fetchCustomers()
       } else {
         const error = await response.json()
-        alert(error.error || "Error al crear cliente")
+        alert(`❌ Error al crear cliente:\n${error.error || "Error desconocido"}`)
       }
     } catch (error) {
       console.error("Error creating customer:", error)
-      alert("Error al crear cliente")
+      alert("❌ Error de conexión. Verifica tu internet y vuelve a intentar.")
     }
   }
 
@@ -278,12 +293,13 @@ export default function CustomersPage() {
                     </div>
                   </div>
 
-                  <div className="mt-4 flex space-x-2">
-                    <Button className="flex-1" size="sm">
+                  <div className="mt-4">
+                    <Button 
+                      className="w-full" 
+                      size="sm"
+                      onClick={() => router.push(`/customers/detail?id=${customer.id}`)}
+                    >
                       Ver Detalle
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Vender
                     </Button>
                   </div>
                 </CardContent>

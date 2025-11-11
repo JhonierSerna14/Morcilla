@@ -13,6 +13,38 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get("search") || ""
     const onlyWithDebt = searchParams.get("onlyWithDebt") === "true"
+    const customerId = searchParams.get("id")
+
+    // Si se solicita un cliente específico por ID
+    if (customerId) {
+      const customer = await prisma.customer.findUnique({
+        where: { id: customerId },
+        include: {
+          sales: {
+            include: {
+              batch: {
+                select: { name: true, number: true }
+              }
+            },
+            orderBy: { saleDate: "desc" }
+          },
+          collections: {
+            include: {
+              batch: {
+                select: { name: true, number: true }
+              }
+            },
+            orderBy: { collectionDate: "desc" }
+          }
+        }
+      })
+
+      if (!customer) {
+        return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 })
+      }
+
+      return NextResponse.json([customer]) // Retorno como array para compatibilidad
+    }
 
     const customers = await prisma.customer.findMany({
       where: {

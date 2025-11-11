@@ -14,10 +14,23 @@ export async function GET() {
       where: { status: "ACTIVE" },
       include: {
         sales: {
-          select: {
-            pounds: true,
-            totalAmount: true,
-            paymentStatus: true,
+          include: {
+            customer: {
+              select: { id: true, name: true, phone: true }
+            },
+            user: {
+              select: { id: true, name: true }
+            }
+          }
+        },
+        collections: {
+          include: {
+            customer: {
+              select: { id: true, name: true }
+            },
+            user: {
+              select: { id: true, name: true }
+            }
           }
         }
       }
@@ -42,6 +55,103 @@ export async function GET() {
     
     const pendingAmount = totalRevenue - paidAmount
 
+    // Calcular detalles adicionales para el dashboard
+    const totalCollections = activeBatch.collections.reduce((sum: number, collection: any) => 
+      sum + parseFloat(collection.amount.toString()), 0
+    )
+
+    // Obtener clientes únicos de esta tanda
+    const uniqueCustomers = Array.from(new Set(activeBatch.sales.map((sale: any) => sale.customerId)))
+    const totalCustomers = uniqueCustomers.length
+
+    // Calcular deudores (clientes con deuda pendiente de esta tanda)
+    const customerDebts = new Map()
+    
+    // Sumar ventas a crédito por cliente
+    activeBatch.sales
+      .filter((sale: any) => sale.paymentStatus === "PENDING")
+      .forEach((sale: any) => {
+        const currentDebt = customerDebts.get(sale.customerId) || 0
+        customerDebts.set(sale.customerId, currentDebt + parseFloat(sale.totalAmount.toString()))
+      })
+
+    // Restar cobros por cliente
+    activeBatch.collections.forEach((collection: any) => {
+      const currentDebt = customerDebts.get(collection.customerId) || 0
+      customerDebts.set(collection.customerId, currentDebt - parseFloat(collection.amount.toString()))
+    })
+
+    // Filtrar solo los que tienen deuda pendiente
+    const debtors = Array.from(customerDebts.entries())
+      .filter(([_, debt]) => debt > 0)
+      .map(([customerId, debt]) => {
+        const customer = activeBatch.sales.find((s: any) => s.customerId === customerId)?.customer
+        const lastSale = activeBatch.sales
+          .filter((s: any) => s.customerId === customerId)
+          .sort((a: any, b: any) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime())[0]
+        
+        return {
+          customerId,
+          customerName: customer?.name || "Cliente desconocido",
+          totalDebt: debt,
+          lastSaleDate: lastSale?.saleDate || ""
+        }
+      })
+      .sort((a, b) => b.totalDebt - a.totalDebt)
+      .slice(0, 5) // Top 5 deudores
+
+    const debtorsCount = debtors.length
+    const paidCustomersCount = totalCustomers - debtorsCount
+
+    // Calcular dinero en poder de cada usuario
+    const userCash = new Map()
+
+    // Dinero de ventas al contado
+    activeBatch.sales
+      .filter((sale: any) => sale.paymentStatus === "PAID")
+      .forEach((sale: any) => {
+        const userId = sale.userId
+        if (!userCash.has(userId)) {
+          userCash.set(userId, {
+            userId,
+            userName: sale.user.name,
+            totalCash: 0,
+            totalNequi: 0
+          })
+        }
+        
+        const userInfo = userCash.get(userId)
+        if (sale.paymentMethod === "EFECTIVO") {
+          userInfo.totalCash += parseFloat(sale.totalAmount.toString())
+        } else if (sale.paymentMethod === "NEQUI") {
+          userInfo.totalNequi += parseFloat(sale.totalAmount.toString())
+        }
+      })
+
+    // Dinero de cobros
+    activeBatch.collections.forEach((collection: any) => {
+      const userId = collection.userId
+      if (!userCash.has(userId)) {
+        userCash.set(userId, {
+          userId,
+          userName: collection.user.name,
+          totalCash: 0,
+          totalNequi: 0
+        })
+      }
+      
+      const userInfo = userCash.get(userId)
+      if (collection.paymentMethod === "EFECTIVO") {
+        userInfo.totalCash += parseFloat(collection.amount.toString())
+      } else if (collection.paymentMethod === "NEQUI") {
+        userInfo.totalNequi += parseFloat(collection.amount.toString())
+      }
+    })
+
+    const cashHolders = Array.from(userCash.values())
+      .filter((holder: any) => holder.totalCash > 0 || holder.totalNequi > 0)
+      .sort((a: any, b: any) => (b.totalCash + b.totalNequi) - (a.totalCash + a.totalNequi))
+
     const metrics = {
       totalPounds,
       totalRevenue,
@@ -50,7 +160,20 @@ export async function GET() {
       salesCount: activeBatch.sales.length
     }
 
-    return NextResponse.json({ activeBatch, metrics })
+    const details = {
+      totalSales: activeBatch.sales.length,
+      totalCustomers,
+      debtorsCount,
+      paidCustomersCount,
+      cashHolders,
+      recentDebtors: debtors
+    }
+
+    return NextResponse.json({ 
+      activeBatch, 
+      metrics, 
+      details 
+    })
   } catch (error) {
     console.error("Error getting active batch:", error)
     return NextResponse.json(

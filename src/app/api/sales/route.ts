@@ -57,9 +57,17 @@ export async function POST(request: Request) {
     } = await request.json()
 
     // Validaciones
-    if (!customerId || !pounds || !pricePerPound || !paymentMethod) {
+    if (!customerId || !pounds || !pricePerPound) {
       return NextResponse.json(
         { error: "Faltan campos obligatorios" }, 
+        { status: 400 }
+      )
+    }
+
+    // Validar método de pago solo si es pago inmediato
+    if (paymentStatus === "PAID" && !paymentMethod) {
+      return NextResponse.json(
+        { error: "Método de pago es obligatorio para pagos inmediatos" },
         { status: 400 }
       )
     }
@@ -99,19 +107,32 @@ export async function POST(request: Request) {
 
     // Usar transacción para crear venta y actualizar totales del cliente
     const result = await prisma.$transaction(async (tx: any) => {
+      // Preparar datos para la venta
+      const saleData: any = {
+        pounds: parseInt(pounds), // Asegurar que sea entero
+        pricePerPound: parseFloat(pricePerPound),
+        totalAmount: totalAmount,
+        paymentStatus: paymentStatus || "PENDING",
+        notes: notes || null,
+        customer: {
+          connect: { id: customerId }
+        },
+        user: {
+          connect: { id: session.user.id }
+        },
+        batch: {
+          connect: { id: activeBatch.id }
+        }
+      }
+
+      // Solo incluir paymentMethod si es pago inmediato
+      if (paymentStatus === "PAID" && paymentMethod) {
+        saleData.paymentMethod = paymentMethod
+      }
+
       // Crear la venta
       const sale = await tx.sale.create({
-        data: {
-          customerId,
-          userId: session.user.id,
-          batchId: activeBatch.id,
-          pounds: pounds,
-          pricePerPound: pricePerPound,
-          totalAmount: totalAmount,
-          paymentMethod,
-          paymentStatus: paymentStatus || "PENDING",
-          notes: notes || null,
-        },
+        data: saleData,
         include: {
           customer: { select: { id: true, name: true } },
           batch: { select: { name: true } }

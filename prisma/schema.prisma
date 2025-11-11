@@ -39,11 +39,7 @@ enum MovementType {
   EXPENSE // Egreso
 }
 
-enum DebtStatus {
-  PENDING
-  PARTIAL
-  PAID
-}
+
 
 // Modelo de Usuario/Vendedor
 model User {
@@ -100,23 +96,22 @@ model Customer {
   // Relaciones
   sales       Sale[]
   collections Collection[]
-  debts       ExternalDebt[]
 
   @@map("customers")
 }
 
 // Modelo de Venta
 model Sale {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  pounds        Float         // Cantidad de libras
-  pricePerPound Float         // Precio por libra
-  totalAmount   Float         // Monto total
-  paymentMethod PaymentMethod
-  paymentStatus PaymentStatus @default(PENDING)
-  saleDate      DateTime      @default(now())
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  pounds        Float          // Cantidad de libras
+  pricePerPound Float          // Precio por libra
+  totalAmount   Float          // Monto total
+  paymentMethod PaymentMethod? // Opcional para ventas a crédito
+  paymentStatus PaymentStatus  @default(PENDING)
+  saleDate      DateTime       @default(now())
   notes         String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   // Relaciones
   customerId String          @db.ObjectId
@@ -205,22 +200,3 @@ model Expense {
   @@map("expenses")
 }
 
-// Modelo de Deudas Externas (dinero prestado a otras personas)
-model ExternalDebt {
-  id         String     @id @default(auto()) @map("_id") @db.ObjectId
-  amount     Float
-  amountPaid Float      @default(0)
-  concept    String
-  debtDate   DateTime   @default(now())
-  dueDate    DateTime?
-  status     DebtStatus @default(PENDING)
-  notes      String?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-
-  // Relaciones
-  customerId String?   @db.ObjectId
-  customer   Customer? @relation(fields: [customerId], references: [id])
-
-  @@map("external_debts")
-}
