@@ -23,7 +23,8 @@ function LoginForm() {
     setError("")
 
     try {
-      // Usar redirect false para manejar manualmente
+      console.log('Iniciando sesión...', { email, from })
+      
       const result = await signIn("credentials", {
         email,
         password,
@@ -31,14 +32,28 @@ function LoginForm() {
         callbackUrl: from,
       })
 
+      console.log('Resultado del login:', result)
+
       if (result?.error) {
+        console.error('Error de autenticación:', result.error)
         setError("Email o contraseña incorrectos")
       } else if (result?.ok) {
-        // Redireccionar usando NextAuth URL
-        window.location.href = result.url || from
+        console.log('Login exitoso, redirigiendo...')
+        // Dar tiempo para que se establezca la sesión
+        setTimeout(() => {
+          if (result.url) {
+            window.location.href = result.url
+          } else {
+            // Fallback: forzar recarga completa para actualizar el estado de sesión
+            window.location.href = from
+          }
+        }, 100)
+      } else {
+        setError("Error inesperado al iniciar sesión")
       }
     } catch (error) {
-      setError("Error al iniciar sesión")
+      console.error('Error en handleSubmit:', error)
+      setError("Error al iniciar sesión. Por favor intenta de nuevo.")
     } finally {
       setLoading(false)
     }

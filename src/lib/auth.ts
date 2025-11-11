@@ -7,7 +7,9 @@ import type { NextAuthConfig } from "next-auth"
 const authConfig: NextAuthConfig = {
   session: { 
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     Credentials({
       name: "credentials",
@@ -69,18 +71,51 @@ const authConfig: NextAuthConfig = {
       return session
     },
     async redirect({ url, baseUrl }) {
-      // Permitir redirecciones relativas y al mismo dominio
-      if (url.startsWith("/")) return `${baseUrl}${url}`
-      // Permitir redirecciones al mismo dominio
-      else if (new URL(url).origin === baseUrl) return url
-      return baseUrl
+      // Logs para debugging en producción
+      console.log('NextAuth redirect callback:', { url, baseUrl })
+      
+      // Para localhost y desarrollo
+      if (baseUrl.includes('localhost')) {
+        if (url.startsWith("/")) return `${baseUrl}${url}`
+        if (url.includes('localhost')) return url
+        return `${baseUrl}/dashboard`
+      }
+      
+      // Para producción en Vercel
+      const prodBaseUrl = process.env.NEXTAUTH_URL || baseUrl
+      if (url.startsWith("/")) return `${prodBaseUrl}${url}`
+      
+      try {
+        const urlObj = new URL(url)
+        const baseUrlObj = new URL(prodBaseUrl)
+        if (urlObj.origin === baseUrlObj.origin) return url
+      } catch (e) {
+        console.error('URL parsing error:', e)
+      }
+      
+      return `${prodBaseUrl}/dashboard`
     }
   },
   pages: {
     signIn: "/login",
+    error: "/login"
   },
-  debug: true,
+  debug: process.env.NODE_ENV === "development",
   trustHost: true,
+  useSecureCookies: process.env.NODE_ENV === "production",
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === "production" 
+        ? "__Secure-next-auth.session-token" 
+        : "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production"
+      }
+    }
+  },
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)
