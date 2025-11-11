@@ -28,20 +28,20 @@ export default function LoadingSpinner({
     <div className="text-center">
       <div className="relative">
         {/* Spinner principal */}
-        <div className={`${sizes.spinner} border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4`}></div>
+        <div className={`${sizes.spinner} border-4 border-muted border-t-primary rounded-full animate-spin mx-auto mb-4`}></div>
         
         {/* Icono de morcilla en el centro */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <Scale className="w-6 h-6 text-blue-600 animate-pulse" />
+          <Scale className="w-6 h-6 text-primary animate-pulse" />
         </div>
       </div>
-      <p className={`${sizes.text} text-gray-600 font-medium`}>{message}</p>
+      <p className={`${sizes.text} text-muted-foreground font-medium`}>{message}</p>
     </div>
   )
 
   if (fullScreen) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         {spinner}
       </div>
     )
@@ -71,10 +71,10 @@ export function CardLoading({ rows = 3 }: { rows?: number }) {
       <div className="space-y-3">
         {Array.from({ length: rows }).map((_, i) => (
           <div key={i} className="flex space-x-4">
-            <div className="rounded-full bg-gray-200 h-10 w-10"></div>
+            <div className="rounded-full bg-muted h-10 w-10"></div>
             <div className="flex-1 space-y-2 py-1">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-4 bg-muted rounded w-3/4"></div>
+              <div className="h-4 bg-muted rounded w-1/2"></div>
             </div>
           </div>
         ))}

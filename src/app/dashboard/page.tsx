@@ -91,38 +91,38 @@ export default function DashboardPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Cargando...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header móvil optimizado */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white lg:hidden">
+      <div className="gradient-primary text-white lg:hidden">
         <div className="px-4 py-4">
           <div className="text-center">
             <h1 className="text-xl font-bold">
               ¡Hola, {session?.user?.name?.split(' ')[0] || 'Usuario'}! 👋
             </h1>
-            <p className="text-blue-100 text-sm">{session?.user?.role}</p>
+            <p className="text-blue-100 text-sm opacity-90">{session?.user?.role}</p>
           </div>
         </div>
       </div>
 
       {/* Header desktop */}
-      <div className="hidden lg:block bg-white shadow-sm border-b">
+      <div className="hidden lg:block bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-foreground">
                 Dashboard Principal
               </h1>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Bienvenido, {session?.user?.name}
               </p>
             </div>
@@ -142,7 +142,7 @@ export default function DashboardPage() {
         {/* Tanda Activa */}
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-            <h2 className="text-xl font-semibold text-gray-900">Tanda Activa</h2>
+            <h2 className="text-xl font-semibold text-foreground">Tanda Activa</h2>
             <Button 
               onClick={createNewBatch} 
               variant="outline" 
@@ -156,41 +156,41 @@ export default function DashboardPage() {
 
           {activeBatch && metrics && batchDetails ? (
             <div className="space-y-4 mb-6">
-              <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              <Card className="gradient-primary text-white">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-xl lg:text-2xl">{formatBatchName(activeBatch)}</CardTitle>
-                  <CardDescription className="text-blue-100">
+                  <CardDescription className="text-blue-100 opacity-90">
                     {formatDateForDisplay(activeBatch.productionDate)}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-                    <div className="text-center bg-blue-600/30 rounded-lg p-3">
+                    <div className="text-center bg-white/20 rounded-lg p-3 backdrop-blur-sm">
                       <div className="text-2xl lg:text-3xl font-bold">{metrics.totalPounds}</div>
-                      <div className="text-xs lg:text-sm text-blue-100">Libras Vendidas</div>
+                      <div className="text-xs lg:text-sm opacity-90">Libras Vendidas</div>
                     </div>
-                    <div className="text-center bg-blue-600/30 rounded-lg p-3">
+                    <div className="text-center bg-white/20 rounded-lg p-3 backdrop-blur-sm">
                       <div className="text-2xl lg:text-3xl font-bold">
                         ${metrics.totalRevenue.toLocaleString()}
                       </div>
-                      <div className="text-xs lg:text-sm text-blue-100">Ingresos Totales</div>
+                      <div className="text-xs lg:text-sm opacity-90">Ingresos Totales</div>
                     </div>
-                    <div className="text-center bg-blue-600/30 rounded-lg p-3">
+                    <div className="text-center bg-white/20 rounded-lg p-3 backdrop-blur-sm">
                       <div className="text-2xl lg:text-3xl font-bold">
                         ${metrics.paidAmount.toLocaleString()}
                       </div>
-                      <div className="text-xs lg:text-sm text-blue-100">Cobrado</div>
+                      <div className="text-xs lg:text-sm opacity-90">Cobrado</div>
                     </div>
-                    <div className="text-center bg-blue-600/30 rounded-lg p-3">
+                    <div className="text-center bg-white/20 rounded-lg p-3 backdrop-blur-sm">
                       <div className="text-2xl lg:text-3xl font-bold">
                         ${metrics.pendingAmount.toLocaleString()}
                       </div>
-                      <div className="text-xs lg:text-sm text-blue-100">Por Cobrar</div>
+                      <div className="text-xs lg:text-sm opacity-90">Por Cobrar</div>
                     </div>
                   </div>
                   <div className="mt-4 text-center">
                     <Link href={`/batches/${activeBatch.id}`}>
-                      <Button variant="secondary" size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
+                      <Button variant="secondary" size="lg" className="bg-white/90 text-blue-700 hover:bg-white dark:bg-white/10 dark:text-white dark:hover:bg-white/20">
                         <Eye className="w-4 h-4 mr-2" />
                         Ver Detalles Completos
                       </Button>
@@ -203,24 +203,24 @@ export default function DashboardPage() {
               <div className="grid md:grid-cols-2 gap-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center">
+                    <CardTitle className="flex items-center text-foreground">
                       <Users className="w-5 h-5 mr-2" />
                       Resumen de Clientes
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                        <span className="font-medium text-green-700">Clientes que han pagado</span>
-                        <span className="text-2xl font-bold text-green-600">{batchDetails.paidCustomersCount}</span>
+                      <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-950/50 rounded-lg border border-green-200 dark:border-green-800">
+                        <span className="font-medium text-green-700 dark:text-green-300">Clientes que han pagado</span>
+                        <span className="text-2xl font-bold text-green-600 dark:text-green-400">{batchDetails.paidCustomersCount}</span>
                       </div>
-                      <div className="flex justify-between items-center p-3 bg-amber-50 rounded-lg">
-                        <span className="font-medium text-amber-700">Clientes que deben</span>
-                        <span className="text-2xl font-bold text-amber-600">{batchDetails.debtorsCount}</span>
+                      <div className="flex justify-between items-center p-3 bg-amber-50 dark:bg-amber-950/50 rounded-lg border border-amber-200 dark:border-amber-800">
+                        <span className="font-medium text-amber-700 dark:text-amber-300">Clientes que deben</span>
+                        <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">{batchDetails.debtorsCount}</span>
                       </div>
-                      <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                        <span className="font-medium text-blue-700">Total de clientes</span>
-                        <span className="text-2xl font-bold text-blue-600">{batchDetails.totalCustomers}</span>
+                      <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-950/50 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <span className="font-medium text-blue-700 dark:text-blue-300">Total de clientes</span>
+                        <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{batchDetails.totalCustomers}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -228,7 +228,7 @@ export default function DashboardPage() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center">
+                    <CardTitle className="flex items-center text-foreground">
                       <DollarSign className="w-5 h-5 mr-2" />
                       Dinero en Poder de Usuarios
                     </CardTitle>
@@ -237,21 +237,21 @@ export default function DashboardPage() {
                     <div className="space-y-3">
                       {batchDetails.cashHolders.length > 0 ? (
                         batchDetails.cashHolders.map((holder) => (
-                          <div key={holder.userId} className="p-3 bg-gray-50 rounded-lg">
-                            <div className="font-medium text-gray-900">{holder.userName}</div>
+                          <div key={holder.userId} className="p-3 bg-muted rounded-lg">
+                            <div className="font-medium text-foreground">{holder.userName}</div>
                             <div className="flex justify-between mt-1">
-                              <span className="text-sm text-gray-600">Efectivo: ${holder.totalCash.toLocaleString()}</span>
-                              <span className="text-sm text-gray-600">Nequi: ${holder.totalNequi.toLocaleString()}</span>
+                              <span className="text-sm text-muted-foreground">Efectivo: ${holder.totalCash.toLocaleString()}</span>
+                              <span className="text-sm text-muted-foreground">Nequi: ${holder.totalNequi.toLocaleString()}</span>
                             </div>
                             <div className="text-right mt-1">
-                              <span className="font-bold text-blue-600">
+                              <span className="font-bold text-primary">
                                 Total: ${(holder.totalCash + holder.totalNequi).toLocaleString()}
                               </span>
                             </div>
                           </div>
                         ))
                       ) : (
-                        <p className="text-gray-500 text-center py-4">No hay dinero registrado aún</p>
+                        <p className="text-muted-foreground text-center py-4">No hay dinero registrado aún</p>
                       )}
                     </div>
                   </CardContent>
@@ -262,23 +262,23 @@ export default function DashboardPage() {
               {batchDetails.recentDebtors.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <AlertCircle className="w-5 h-5 mr-2 text-amber-600" />
+                    <CardTitle className="flex items-center text-foreground">
+                      <AlertCircle className="w-5 h-5 mr-2 text-amber-600 dark:text-amber-400" />
                       Top 5 Clientes con Deuda Pendiente
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
                       {batchDetails.recentDebtors.map((debtor) => (
-                        <div key={debtor.customerId} className="flex justify-between items-center p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                        <div key={debtor.customerId} className="flex justify-between items-center p-3 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg">
                           <div>
-                            <div className="font-medium text-gray-900">{debtor.customerName}</div>
-                            <div className="text-sm text-gray-600">
+                            <div className="font-medium text-foreground">{debtor.customerName}</div>
+                            <div className="text-sm text-muted-foreground">
                               Última venta: {new Date(debtor.lastSaleDate).toLocaleDateString('es-CO')}
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="font-bold text-amber-600">
+                            <div className="font-bold text-amber-600 dark:text-amber-400">
                               ${debtor.totalDebt.toLocaleString()}
                             </div>
                           </div>
@@ -325,13 +325,13 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="border-dashed border-2 border-gray-300">
+            <Card className="border-dashed border-2 border-border">
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <Scale className="w-12 h-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <Scale className="w-12 h-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
                   No hay tanda activa
                 </h3>
-                <p className="text-gray-600 text-center mb-4">
+                <p className="text-muted-foreground text-center mb-4">
                   Crea una nueva tanda para empezar a registrar ventas
                 </p>
                 <Button onClick={createNewBatch} size="lg">
@@ -346,56 +346,56 @@ export default function DashboardPage() {
         {/* Acciones Rápidas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Link href="/sales">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer hover:bg-accent">
               <CardContent className="flex items-center p-6">
-                <div className="bg-green-100 p-3 rounded-full mr-4">
-                  <Plus className="w-6 h-6 text-green-600" />
+                <div className="bg-green-100 dark:bg-green-950/50 p-3 rounded-full mr-4">
+                  <Plus className="w-6 h-6 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Nueva Venta</div>
-                  <div className="text-sm text-gray-600">Registrar venta</div>
+                  <div className="font-semibold text-foreground">Nueva Venta</div>
+                  <div className="text-sm text-muted-foreground">Registrar venta</div>
                 </div>
               </CardContent>
             </Card>
           </Link>
 
           <Link href="/collections">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer hover:bg-accent">
               <CardContent className="flex items-center p-6">
-                <div className="bg-blue-100 p-3 rounded-full mr-4">
-                  <DollarSign className="w-6 h-6 text-blue-600" />
+                <div className="bg-blue-100 dark:bg-blue-950/50 p-3 rounded-full mr-4">
+                  <DollarSign className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Cobrar</div>
-                  <div className="text-sm text-gray-600">Registrar cobro</div>
+                  <div className="font-semibold text-foreground">Cobrar</div>
+                  <div className="text-sm text-muted-foreground">Registrar cobro</div>
                 </div>
               </CardContent>
             </Card>
           </Link>
 
           <Link href="/customers">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer hover:bg-accent">
               <CardContent className="flex items-center p-6">
-                <div className="bg-purple-100 p-3 rounded-full mr-4">
-                  <Users className="w-6 h-6 text-purple-600" />
+                <div className="bg-purple-100 dark:bg-purple-950/50 p-3 rounded-full mr-4">
+                  <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Clientes</div>
-                  <div className="text-sm text-gray-600">Gestionar clientes</div>
+                  <div className="font-semibold text-foreground">Clientes</div>
+                  <div className="text-sm text-muted-foreground">Gestionar clientes</div>
                 </div>
               </CardContent>
             </Card>
           </Link>
 
           <Link href="/cash">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer hover:bg-accent">
               <CardContent className="flex items-center p-6">
-                <div className="bg-orange-100 p-3 rounded-full mr-4">
-                  <Clock className="w-6 h-6 text-orange-600" />
+                <div className="bg-orange-100 dark:bg-orange-950/50 p-3 rounded-full mr-4">
+                  <Clock className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Mi Caja</div>
-                  <div className="text-sm text-gray-600">Gestionar dinero</div>
+                  <div className="font-semibold text-foreground">Mi Caja</div>
+                  <div className="text-sm text-muted-foreground">Gestionar dinero</div>
                 </div>
               </CardContent>
             </Card>

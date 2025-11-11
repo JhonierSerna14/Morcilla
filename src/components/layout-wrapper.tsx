@@ -14,7 +14,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const shouldShowNavigation = session && !isPublicPath
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {shouldShowNavigation && <DesktopNavigation />}
       
       <main className={shouldShowNavigation ? "pb-20 lg:pb-0" : ""}>

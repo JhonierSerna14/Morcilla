@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { signOut } from "next-auth/react"
+import ThemeToggle from "@/components/ui/theme-toggle"
 
 interface NavItem {
   name: string
@@ -95,10 +96,10 @@ export default function MobileNavigation() {
   const navItems = [...baseNavItems, ...(session?.user?.role === "ADMIN" ? adminNavItems : [])]
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 lg:hidden">
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border lg:hidden shadow-lg">
       {/* Navegación principal móvil */}
       <div className="flex overflow-x-auto px-2 py-2">
-        {navItems.slice(0, 5).map((item) => {
+        {navItems.slice(0, 4).map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
           
@@ -108,8 +109,8 @@ export default function MobileNavigation() {
               href={item.href}
               className={`flex-shrink-0 px-3 py-2 mx-1 rounded-lg text-center min-w-[60px] transition-colors ${
                 isActive
-                  ? "bg-blue-100 text-blue-600"
-                  : "text-gray-600 hover:bg-gray-100"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               }`}
             >
               <Icon className="w-6 h-6 mx-auto mb-1" />
@@ -120,7 +121,7 @@ export default function MobileNavigation() {
         
         {/* Botón de menú expandido */}
         <button
-          className="flex-shrink-0 px-3 py-2 mx-1 rounded-lg text-center min-w-[60px] text-gray-600 hover:bg-gray-100"
+          className="flex-shrink-0 px-3 py-2 mx-1 rounded-lg text-center min-w-[60px] text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
           onClick={() => {
             const menu = document.getElementById('expanded-menu')
             if (menu) {
@@ -134,9 +135,9 @@ export default function MobileNavigation() {
       </div>
 
       {/* Menú expandido */}
-      <div id="expanded-menu" className="hidden bg-white border-t border-gray-200 px-4 py-4 max-h-64 overflow-y-auto">
+      <div id="expanded-menu" className="hidden bg-card border-t border-border px-4 py-4 max-h-64 overflow-y-auto">
         <div className="grid grid-cols-2 gap-3">
-          {navItems.slice(5).map((item) => {
+          {navItems.slice(4).map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
             
@@ -146,24 +147,25 @@ export default function MobileNavigation() {
                 href={item.href}
                 className={`flex items-center p-3 rounded-lg transition-colors ${
                   isActive
-                    ? "bg-blue-100 text-blue-600"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-card-foreground hover:bg-accent hover:text-accent-foreground"
                 }`}
               >
                 <Icon className="w-5 h-5 mr-3" />
                 <div>
                   <div className="font-medium text-sm">{item.name}</div>
-                  <div className="text-xs text-gray-500">{item.description}</div>
+                  <div className="text-xs text-muted-foreground">{item.description}</div>
                 </div>
               </Link>
             )
           })}
         </div>
         
-        <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="mt-4 pt-4 border-t border-border flex items-center justify-between">
+          <ThemeToggle />
           <Button
             variant="outline"
-            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="flex-1 ml-3 justify-start text-destructive hover:text-destructive-foreground hover:bg-destructive"
             onClick={() => signOut()}
           >
             <LogOut className="w-4 h-4 mr-2" />
@@ -185,16 +187,16 @@ export function DesktopNavigation() {
 
   return (
     <div className="hidden lg:block">
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <Link href="/dashboard" className="text-xl font-bold text-gray-900">
+              <Link href="/dashboard" className="text-xl font-bold text-foreground">
                 Gestión Morcilla
               </Link>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = pathname === item.href
@@ -205,8 +207,8 @@ export function DesktopNavigation() {
                     href={item.href}
                     className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
-                        ? "bg-blue-100 text-blue-600"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent"
                     }`}
                   >
                     <Icon className="w-4 h-4 mr-2" />
@@ -215,11 +217,13 @@ export function DesktopNavigation() {
                 )
               })}
               
+              <ThemeToggle />
+              
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => signOut()}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="text-destructive hover:text-destructive-foreground hover:bg-destructive ml-2"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Salir

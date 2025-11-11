@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import ThemeToggle from "@/components/ui/theme-toggle"
 
 function LoginForm() {
   const [email, setEmail] = useState("")
@@ -57,10 +58,15 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-950 p-4 relative">
+      {/* Toggle de tema en la esquina superior derecha */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      
+      <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
+          <CardTitle className="text-2xl font-bold text-center text-foreground">
             Gestión Familiar Morcilla
           </CardTitle>
           <CardDescription className="text-center">
@@ -98,7 +104,7 @@ function LoginForm() {
               />
             </div>
             {error && (
-              <div className="text-red-500 text-sm text-center bg-red-50 p-3 rounded-md">
+              <div className="text-red-500 dark:text-red-400 text-sm text-center bg-red-50 dark:bg-red-950/50 p-3 rounded-md border border-red-200 dark:border-red-800">
                 {error}
               </div>
             )}

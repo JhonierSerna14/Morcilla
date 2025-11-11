@@ -1,5 +1,7 @@
 <!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
 
+NO REALIZAR ARCHIVOS .MD de resumen, intrucciones o similares aparte de este.
+
 # Gestión Familiar Morcilla - Sistema de Control de Ventas por Tandas
 
 Este es un sistema completo de gestión para negocio familiar de morcilla desarrollado con:
