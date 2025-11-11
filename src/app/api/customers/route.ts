@@ -32,7 +32,7 @@ export async function GET(request: Request) {
       include: {
         sales: {
           include: {
-            productionBatch: {
+            batch: {
               select: { name: true }
             }
           },

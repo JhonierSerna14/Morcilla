@@ -1,0 +1,223 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de Usuario/Vendedor
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(VENDEDOR)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  sales         Sale[]
+  cashMovements CashMovement[]
+  collections   Collection[]
+  expenses      Expense[]
+  transfersFrom Transfer[] @relation("TransferFrom")
+  transfersTo   Transfer[] @relation("TransferTo")
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  VENDEDOR
+  COBRADOR
+}
+
+// Modelo de Tanda de Producción
+model ProductionBatch {
+  id             String      @id @default(cuid())
+  name           String // "Tanda #15 - Nov 10"
+  number         Int         @unique
+  productionDate DateTime
+  status         BatchStatus @default(ACTIVE)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  closedAt       DateTime?
+
+  // Relaciones
+  sales       Sale[]
+  collections Collection[]
+
+  @@map("production_batches")
+}
+
+enum BatchStatus {
+  ACTIVE
+  CLOSED
+}
+
+// Modelo de Cliente
+model Customer {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String?
+  address     String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  totalDebt   Decimal  @default(0) @db.Decimal(10, 2)
+  totalPaid   Decimal  @default(0) @db.Decimal(10, 2) 
+
+  // Relaciones
+  sales       Sale[]
+  collections Collection[]
+  debts       ExternalDebt[]
+
+  @@map("customers")
+}
+
+// Modelo de Venta
+model Sale {
+  id           String      @id @default(cuid())
+  pounds       Decimal     @db.Decimal(8, 2) // Cantidad de libras
+  pricePerPound Decimal    @db.Decimal(8, 2) // Precio por libra
+  totalAmount  Decimal     @db.Decimal(10, 2) // Monto total
+  paymentMethod PaymentMethod
+  paymentStatus PaymentStatus @default(PENDING)
+  saleDate     DateTime    @default(now())
+  notes        String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relaciones
+  customerId       String
+  customer         Customer        @relation(fields: [customerId], references: [id])
+  userId           String
+  user             User            @relation(fields: [userId], references: [id])
+  productionBatchId String
+  productionBatch  ProductionBatch @relation(fields: [productionBatchId], references: [id])
+
+  @@map("sales")
+}
+
+enum PaymentMethod {
+  EFECTIVO
+  NEQUI
+}
+
+enum PaymentStatus {
+  PAID      // Pagado inmediatamente
+  PENDING   // A crédito
+}
+
+// Modelo de Cobro (cuando se cobran ventas a crédito)
+model Collection {
+  id            String        @id @default(cuid())
+  amount        Decimal       @db.Decimal(10, 2)
+  paymentMethod PaymentMethod
+  collectionDate DateTime     @default(now())
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relaciones
+  customerId       String
+  customer         Customer        @relation(fields: [customerId], references: [id])
+  userId           String
+  user             User            @relation(fields: [userId], references: [id])
+  productionBatchId String?
+  productionBatch  ProductionBatch? @relation(fields: [productionBatchId], references: [id])
+
+  @@map("collections")
+}
+
+// Modelo de Movimientos de Caja por Usuario
+model CashMovement {
+  id            String          @id @default(cuid())
+  movementType  MovementType
+  amount        Decimal         @db.Decimal(10, 2)
+  paymentMethod PaymentMethod
+  description   String
+  movementDate  DateTime        @default(now())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  // Relaciones
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("cash_movements")
+}
+
+enum MovementType {
+  INCOME  // Ingreso
+  EXPENSE // Egreso
+}
+
+// Modelo de Transferencias Internas entre Usuarios
+model Transfer {
+  id           String        @id @default(cuid())
+  amount       Decimal       @db.Decimal(10, 2)
+  paymentMethod PaymentMethod
+  concept      String
+  transferDate DateTime      @default(now())
+  notes        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relaciones
+  fromUserId String
+  fromUser   User   @relation("TransferFrom", fields: [fromUserId], references: [id])
+  toUserId   String
+  toUser     User   @relation("TransferTo", fields: [toUserId], references: [id])
+
+  @@map("transfers")
+}
+
+// Modelo de Gastos/Egresos
+model Expense {
+  id          String   @id @default(cuid())
+  amount      Decimal  @db.Decimal(10, 2)
+  concept     String   // Concepto obligatorio
+  description String?
+  expenseDate DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("expenses")
+}
+
+// Modelo de Deudas Externas (dinero prestado a otras personas)
+model ExternalDebt {
+  id         String    @id @default(cuid())
+  amount     Decimal   @db.Decimal(10, 2)
+  amountPaid Decimal   @default(0) @db.Decimal(10, 2)
+  concept    String
+  debtDate   DateTime  @default(now())
+  dueDate    DateTime?
+  status     DebtStatus @default(PENDING)
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relaciones
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  @@map("external_debts")
+}
+
+enum DebtStatus {
+  PENDING
+  PARTIAL
+  PAID
+}

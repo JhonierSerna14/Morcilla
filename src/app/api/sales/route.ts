@@ -17,14 +17,14 @@ export async function GET(request: Request) {
 
     const sales = await prisma.sale.findMany({
       where: {
-        ...(batchId && { productionBatchId: batchId }),
+        ...(batchId && { batchId: batchId }),
         ...(customerId && { customerId }),
         ...(paymentStatus && { paymentStatus: paymentStatus as any }),
       },
       include: {
         customer: { select: { id: true, name: true, phone: true } },
         user: { select: { id: true, name: true } },
-        productionBatch: { select: { id: true, name: true, number: true } }
+        batch: { select: { id: true, name: true, number: true } }
       },
       orderBy: { saleDate: "desc" }
     })
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
         data: {
           customerId,
           userId: session.user.id,
-          productionBatchId: activeBatch.id,
+          batchId: activeBatch.id,
           pounds: pounds,
           pricePerPound: pricePerPound,
           totalAmount: totalAmount,
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
         },
         include: {
           customer: { select: { id: true, name: true } },
-          productionBatch: { select: { name: true } }
+          batch: { select: { name: true } }
         }
       })
 

@@ -14,7 +14,8 @@
     "create-admin": "tsx scripts/create-admin.ts",
     "vercel-build": "prisma generate && prisma db push && next build",
     "db:deploy": "prisma db push",
-    "db:seed:prod": "tsx prisma/seed.ts"
+    "db:seed:prod": "tsx prisma/seed.ts",
+    "setup:prod": "prisma generate && prisma db push && tsx scripts/create-admin.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

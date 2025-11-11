@@ -65,8 +65,10 @@ async function main() {
   console.log(`✅ ${customers.length} clientes creados`)
 
   // Crear primera tanda de producción
-  const batch = await prisma.productionBatch.create({
-    data: {
+  const batch = await prisma.productionBatch.upsert({
+    where: { number: 1 },
+    update: {},
+    create: {
       name: 'Tanda #1 - Noviembre 2025',
       number: 1,
       productionDate: new Date(),
@@ -84,7 +86,7 @@ async function main() {
       {
         customerId: allCustomers[0].id,
         userId: vendedor.id,
-        productionBatchId: batch.id,
+        batchId: batch.id,
         pounds: 2.0,
         pricePerPound: 12000,
         totalAmount: 24000,
@@ -95,7 +97,7 @@ async function main() {
       {
         customerId: allCustomers[1].id,
         userId: vendedor.id,
-        productionBatchId: batch.id,
+        batchId: batch.id,
         pounds: 1.5,
         pricePerPound: 12000,
         totalAmount: 18000,
@@ -106,7 +108,7 @@ async function main() {
       {
         customerId: allCustomers[2].id,
         userId: admin!.id,
-        productionBatchId: batch.id,
+        batchId: batch.id,
         pounds: 3.0,
         pricePerPound: 12000,
         totalAmount: 36000,

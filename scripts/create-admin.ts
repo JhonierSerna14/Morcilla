@@ -1,71 +1,53 @@
-// Script para crear usuario administrador inicial en producción
-// Ejecutar SOLO UNA VEZ después del primer deploy
-// Uso: npx tsx scripts/create-admin.ts
-
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
-async function createInitialAdmin() {
-  console.log('🚀 Configurando usuario administrador inicial para producción...')
-
-  // ========== CAMBIAR ESTOS DATOS ANTES DE EJECUTAR ==========
-  const adminData = {
-    email: process.env.ADMIN_EMAIL || 'admin@morcilla.app',     // 🔥 CAMBIAR POR TU EMAIL REAL
-    name: process.env.ADMIN_NAME || 'Administrador Principal',   
-    password: process.env.ADMIN_PASSWORD || 'MorcillaAdmin2025!' // 🔥 USAR PASSWORD SEGURO
-  }
-  // ===========================================================
-
+async function createAdmin() {
   try {
-    // Verificar si ya existe un admin
-    const existingAdmin = await prisma.user.findFirst({
-      where: { role: 'ADMIN' }
-    })
+    console.log('🔐 Creando usuario administrador...')
 
-    if (existingAdmin) {
-      console.log('❌ Ya existe un administrador en la base de datos')
-      console.log(`📧 Admin existente: ${existingAdmin.email}`)
-      return
-    }
+    const email = process.env.ADMIN_EMAIL || 'admin@morcilla.com'
+    const password = process.env.ADMIN_PASSWORD || 'admin123'
+    const name = process.env.ADMIN_NAME || 'Administrador'
 
-    // Verificar si el email específico ya existe
+    // Verificar si ya existe
     const existingUser = await prisma.user.findUnique({
-      where: { email: adminData.email }
+      where: { email }
     })
 
     if (existingUser) {
-      console.log('❌ Ya existe un usuario con ese email')
+      console.log('⚠️  El usuario administrador ya existe:', email)
       return
     }
 
-    // Crear admin inicial
-    const hashedPassword = await bcrypt.hash(adminData.password, 12)
+    // Hashear password
+    const hashedPassword = await bcrypt.hash(password, 12)
 
+    // Crear admin
     const admin = await prisma.user.create({
       data: {
-        email: adminData.email,
-        name: adminData.name,
+        email,
+        name,
         password: hashedPassword,
-        role: 'ADMIN'
+        role: 'ADMIN',
+        active: true
       }
     })
 
-    console.log('✅ Administrador creado exitosamente para producción!')
-    console.log('📧 Email:', admin.email)
-    console.log('👤 Nombre:', admin.name)
-    console.log('🔐 Password:', adminData.password)
-    console.log('🆔 ID:', admin.id)
+    console.log('✅ Usuario administrador creado exitosamente:')
+    console.log('   Email:', admin.email)
+    console.log('   Nombre:', admin.name)
+    console.log('   Rol:', admin.role)
     console.log('')
-    console.log('🚨 IMPORTANTE: Guarda estas credenciales en un lugar seguro')
-    console.log('🔄 Cambia la password después del primer login')
+    console.log('🚀 Ya puedes hacer login con estas credenciales')
 
   } catch (error) {
     console.error('❌ Error creando administrador:', error)
+    process.exit(1)
   } finally {
     await prisma.$disconnect()
   }
 }
 
-createInitialAdmin()
+createAdmin()
