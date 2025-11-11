@@ -49,7 +49,10 @@ const authConfig: NextAuthConfig = {
             role: user.role,
           }
         } catch (error) {
-          console.error("Auth error:", error)
+          // Solo logs en desarrollo
+          if (process.env.NODE_ENV === "development") {
+            console.error("Auth error:", error)
+          }
           return null
         }
       }
@@ -71,11 +74,13 @@ const authConfig: NextAuthConfig = {
       return session
     },
     async redirect({ url, baseUrl }) {
-      console.log('NextAuth redirect:', { url, baseUrl, env: process.env.NODE_ENV })
+      // Solo logs en desarrollo
+      if (process.env.NODE_ENV === "development") {
+        console.log('NextAuth redirect:', { url, baseUrl })
+      }
       
       // Permitir URLs relativas
       if (url.startsWith("/")) {
-        console.log('Redirecting to relative URL:', `${baseUrl}${url}`)
         return `${baseUrl}${url}`
       }
       
@@ -84,16 +89,16 @@ const authConfig: NextAuthConfig = {
         const urlObj = new URL(url)
         const baseUrlObj = new URL(baseUrl)
         if (urlObj.origin === baseUrlObj.origin) {
-          console.log('Same origin redirect:', url)
           return url
         }
       } catch (error) {
-        console.error('URL parsing error:', error)
+        if (process.env.NODE_ENV === "development") {
+          console.error('URL parsing error:', error)
+        }
       }
       
       // Default: ir al dashboard
       const defaultUrl = `${baseUrl}/dashboard`
-      console.log('Default redirect to:', defaultUrl)
       return defaultUrl
     }
   },

@@ -1,34 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
+  // SEGURIDAD: Solo permitir en desarrollo
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "No disponible en producción" }, { status: 403 })
+  }
+
   const debug = {
-    // Environment Variables
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    // Environment Variables (sin exponer valores)
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? '[CONFIGURADO]' : '[NO CONFIGURADO]',
     NODE_ENV: process.env.NODE_ENV,
-    VERCEL_URL: process.env.VERCEL_URL,
     
-    // Vercel Info
-    vercelEnv: process.env.VERCEL_ENV,
-    vercelGitCommitSha: process.env.VERCEL_GIT_COMMIT_SHA,
-    
-    // Request Info
+    // Request Info básico
     origin: request.nextUrl.origin,
-    host: request.headers.get('host'),
     protocol: request.nextUrl.protocol,
     
-    // Cookies
-    cookies: request.cookies.getAll().map(cookie => ({
-      name: cookie.name,
-      value: cookie.value.substring(0, 20) + '...'
-    })),
-    
-    // Headers relevantes
-    userAgent: request.headers.get('user-agent'),
-    referer: request.headers.get('referer'),
-    
     // Database
-    databaseConnected: !!process.env.DATABASE_URL
+    databaseConnected: !!process.env.DATABASE_URL,
+    
+    timestamp: new Date().toISOString()
   }
   
   return NextResponse.json(debug, { 

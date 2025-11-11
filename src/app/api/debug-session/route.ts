@@ -2,6 +2,11 @@ import { auth } from '@/lib/auth'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
+  // SEGURIDAD: Solo permitir en desarrollo
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "No disponible en producción" }, { status: 403 })
+  }
+
   try {
     const session = await auth()
     
@@ -15,20 +20,12 @@ export async function GET(request: NextRequest) {
         role: session.user.role
       } : null,
       
-      // Auth Cookies
-      sessionToken: request.cookies.get('authjs.session-token')?.value?.substring(0, 20) + '...' || '[NO ENCONTRADO]',
-      csrfToken: request.cookies.get('authjs.csrf-token')?.value?.substring(0, 20) + '...' || '[NO ENCONTRADO]',
-      
       // Environment
-      nextauthUrl: process.env.NEXTAUTH_URL,
       nodeEnv: process.env.NODE_ENV,
       
-      // Request
+      // Request básico
       origin: request.nextUrl.origin,
       pathname: request.nextUrl.pathname,
-      
-      // All Cookies
-      allCookies: request.cookies.getAll().map(c => c.name),
       
       timestamp: new Date().toISOString()
     }

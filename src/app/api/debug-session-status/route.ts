@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 
 export async function GET(request: NextRequest) {
+  // SEGURIDAD: Solo permitir en desarrollo
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "No disponible en producción" }, { status: 403 })
+  }
+
   try {
     const session = await auth()
     
@@ -10,22 +15,19 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
       environment: {
         NODE_ENV: process.env.NODE_ENV,
-        NEXTAUTH_URL: process.env.NEXTAUTH_URL ? 'SET' : 'NOT SET',
-        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? 'SET (length: ' + (process.env.NEXTAUTH_SECRET?.length || 0) + ')' : 'NOT SET',
+        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? 'SET' : 'NOT SET',
         DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT SET',
       },
       session: session ? {
-        user: session.user,
+        user: {
+          id: session.user?.id,
+          email: session.user?.email,
+          role: session.user?.role
+        },
         expires: session.expires
       } : null,
-      request: {
-        url: request.url,
-        headers: Object.fromEntries(request.headers.entries()),
-        cookies: request.cookies.getAll().map(c => ({ name: c.name, value: c.value.substring(0, 20) + '...' })),
-      }
     })
   } catch (error) {
-    console.error('Debug error:', error)
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
