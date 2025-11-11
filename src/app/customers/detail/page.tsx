@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -46,7 +46,7 @@ interface Collection {
   }
 }
 
-export default function CustomerDetailPage() {
+function CustomerDetailContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const customerId = searchParams.get("id")
@@ -331,5 +331,20 @@ export default function CustomerDetailPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function CustomerDetailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando detalles del cliente...</p>
+        </div>
+      </div>
+    }>
+      <CustomerDetailContent />
+    </Suspense>
   )
 }
