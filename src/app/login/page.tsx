@@ -23,20 +23,19 @@ function LoginForm() {
     setError("")
 
     try {
+      // Usar redirect false para manejar manualmente
       const result = await signIn("credentials", {
         email,
         password,
         redirect: false,
+        callbackUrl: from,
       })
 
       if (result?.error) {
         setError("Email o contraseña incorrectos")
       } else if (result?.ok) {
-        // Esperar un momento para que las cookies se establezcan
-        await new Promise(resolve => setTimeout(resolve, 100))
-        
-        // Forzar recarga de la página para asegurar que las cookies se lean
-        window.location.href = from
+        // Redireccionar usando NextAuth URL
+        window.location.href = result.url || from
       }
     } catch (error) {
       setError("Error al iniciar sesión")

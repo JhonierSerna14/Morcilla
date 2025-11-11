@@ -7,19 +7,6 @@ import type { NextAuthConfig } from "next-auth"
 const authConfig: NextAuthConfig = {
   session: { 
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 días
-  },
-  cookies: {
-    sessionToken: {
-      name: process.env.NODE_ENV === "production" ? "__Secure-next-auth.session-token" : "next-auth.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        domain: process.env.NODE_ENV === "production" ? ".vercel.app" : undefined
-      }
-    }
   },
   providers: [
     Credentials({
@@ -80,13 +67,20 @@ const authConfig: NextAuthConfig = {
         session.user.role = token.role as string
       }
       return session
+    },
+    async redirect({ url, baseUrl }) {
+      // Permitir redirecciones relativas y al mismo dominio
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      // Permitir redirecciones al mismo dominio
+      else if (new URL(url).origin === baseUrl) return url
+      return baseUrl
     }
   },
   pages: {
     signIn: "/login",
   },
-  debug: process.env.NODE_ENV === "development",
-  trustHost: true, // Importante para Vercel
+  debug: true,
+  trustHost: true,
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)
