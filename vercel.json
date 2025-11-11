@@ -3,10 +3,5 @@
     "src/app/api/**/*.ts": {
       "maxDuration": 10
     }
-  },
-  "env": {
-    "NEXTAUTH_SECRET": "@nextauth_secret",
-    "NEXTAUTH_URL": "@nextauth_url",
-    "DATABASE_URL": "@database_url"
   }
 }
