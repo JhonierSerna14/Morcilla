@@ -38,17 +38,14 @@ function LoginForm() {
         console.error('Error de autenticación:', result.error)
         setError("Email o contraseña incorrectos")
       } else if (result?.ok) {
-        console.log('Login exitoso, redirigiendo...')
-        // Dar tiempo para que se establezca la sesión
+        console.log('Login exitoso, redirigiendo...', result)
+        // Esperar un poco más para que se establezca la sesión
         setTimeout(() => {
-          if (result.url) {
-            window.location.href = result.url
-          } else {
-            // Fallback: forzar recarga completa para actualizar el estado de sesión
-            window.location.href = from
-          }
-        }, 100)
+          // Forzar navegación completa para refrescar el estado
+          window.location.replace(result?.url || from)
+        }, 200)
       } else {
+        console.log('Resultado inesperado:', result)
         setError("Error inesperado al iniciar sesión")
       }
     } catch (error) {
