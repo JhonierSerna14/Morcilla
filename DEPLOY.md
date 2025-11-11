@@ -17,13 +17,34 @@
 
 ## 3. Configurar Variables de Entorno
 
-En Vercel, agrega estas variables de entorno:
+En el dashboard de Vercel, ve a **Settings** → **Environment Variables** y agrega:
 
+| Variable | Value | Environments |
+|----------|-------|--------------|
+| `NEXTAUTH_SECRET` | `[ver instrucciones abajo]` | Production, Preview, Development |
+| `NEXTAUTH_URL` | `https://tu-app.vercel.app` | Production |
+| `NEXTAUTH_URL` | `https://tu-app-preview.vercel.app` | Preview |
+| `NEXTAUTH_URL` | `http://localhost:3000` | Development |
+
+### 🔐 Generar NEXTAUTH_SECRET
+
+**En tu computadora local:**
 ```bash
-NEXTAUTH_SECRET="genera-con-openssl-rand-base64-32"
-NEXTAUTH_URL="https://tu-app.vercel.app"
-# DATABASE_URL se configura automáticamente con Supabase
+# Si tienes OpenSSL (Mac/Linux/Windows con Git Bash)
+openssl rand -base64 32
+
+# Si no tienes OpenSSL, usa Node.js
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+
+# O usa este generador online (seguro): https://generate-secret.vercel.app/32
 ```
+
+**Ejemplo de secreto generado:**
+```
+wX8mP2vK9sQ7nR4tY6uI1oP3aS5dF8hJ0kL2mN9xC4vB
+```
+
+> **Nota**: `DATABASE_URL` se configura automáticamente cuando conectas Supabase desde Vercel Storage.
 
 ## 4. Desplegar
 
@@ -35,8 +56,17 @@ NEXTAUTH_URL="https://tu-app.vercel.app"
 
 Después del primer despliegue exitoso:
 
-1. Ve a la terminal de tu proyecto en Vercel
-2. Edita las credenciales en `scripts/create-admin.ts`:
+### Opción A: Usar Variables de Entorno (Recomendado)
+1. En Vercel, agrega estas variables adicionales:
+   - `ADMIN_EMAIL`: `tu-email@tudominio.com`
+   - `ADMIN_NAME`: `Tu Nombre Completo`
+   - `ADMIN_PASSWORD`: `TuPasswordSeguro123!`
+
+2. Ve a Functions → Terminal en tu proyecto Vercel
+3. Ejecuta: `npx tsx scripts/create-admin.ts`
+
+### Opción B: Editar Script Manualmente
+1. Edita `scripts/create-admin.ts` antes del despliegue:
    ```typescript
    const adminData = {
      email: 'tu-email@tudominio.com',
@@ -44,8 +74,8 @@ Después del primer despliegue exitoso:
      password: 'TuPasswordSeguro123!'
    }
    ```
-3. Ejecuta: `npx tsx scripts/create-admin.ts`
-4. Guarda las credenciales mostradas
+2. Haz push del cambio a GitHub
+3. Ejecuta desde terminal: `npx tsx scripts/create-admin.ts`
 
 ## 6. Verificar Funcionamiento
 

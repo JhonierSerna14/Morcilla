@@ -38,12 +38,23 @@ git push origin main
 
 ### 2. Configurar en Vercel
 1. Importar repositorio desde GitHub
-2. Ir a Storage → Browse → Seleccionar Supabase
-3. Configurar variables de entorno:
-   ```
-   NEXTAUTH_SECRET="[generar con: openssl rand -base64 32]"
-   NEXTAUTH_URL="https://tu-app.vercel.app"
-   ```
+2. Ir a **Storage** → **Browse** → **Supabase**
+3. Conectar/crear base de datos PostgreSQL
+4. Ir a **Settings** → **Environment Variables**:
+
+| Variable | Valor |
+|----------|-------|
+| `NEXTAUTH_SECRET` | `[generar secreto - ver abajo]` |
+| `NEXTAUTH_URL` | `https://tu-app.vercel.app` |
+
+**Generar NEXTAUTH_SECRET:**
+```bash
+# Con el script incluido
+node scripts/generate-secret.js
+
+# O con Node.js directamente
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
 
 ### 3. Desplegar
 - Vercel desplegará automáticamente
