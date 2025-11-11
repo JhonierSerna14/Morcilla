@@ -165,12 +165,17 @@ async function getUserCashSummary() {
 
   const userSummary = users.map(user => {
     const salesByMethod = user.sales.reduce((acc, sale) => {
-      acc[sale.paymentMethod] = (acc[sale.paymentMethod] || 0) + Number(sale.totalAmount)
+      // Solo contar ventas que tienen método de pago (ventas pagadas)
+      if (sale.paymentMethod) {
+        acc[sale.paymentMethod] = (acc[sale.paymentMethod] || 0) + Number(sale.totalAmount)
+      }
       return acc
     }, {} as Record<string, number>)
 
     const collectionsByMethod = user.collections.reduce((acc, collection) => {
-      acc[collection.paymentMethod] = (acc[collection.paymentMethod] || 0) + Number(collection.amount)
+      if (collection.paymentMethod) {
+        acc[collection.paymentMethod] = (acc[collection.paymentMethod] || 0) + Number(collection.amount)
+      }
       return acc
     }, {} as Record<string, number>)
 
