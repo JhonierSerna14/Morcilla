@@ -12,9 +12,9 @@ async function createInitialAdmin() {
 
   // ========== CAMBIAR ESTOS DATOS ANTES DE EJECUTAR ==========
   const adminData = {
-    email: 'admin@tudominio.com',     // 🔥 CAMBIAR POR TU EMAIL REAL
-    name: 'Administrador Principal',   
-    password: 'CambiarEstePassword123!' // 🔥 USAR PASSWORD SEGURO
+    email: process.env.ADMIN_EMAIL || 'admin@morcilla.app',     // 🔥 CAMBIAR POR TU EMAIL REAL
+    name: process.env.ADMIN_NAME || 'Administrador Principal',   
+    password: process.env.ADMIN_PASSWORD || 'MorcillaAdmin2025!' // 🔥 USAR PASSWORD SEGURO
   }
   // ===========================================================
 

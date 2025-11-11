@@ -148,53 +148,30 @@ Después de ejecutar el seeder, puedes usar estas credenciales:
   - Email: `vendedor@morcilla.com`
   - Contraseña: `vendedor123`
 
-## 🌐 Despliegue en Vercel
+## 🌐 Despliegue en Vercel + Supabase
 
-### 1. Preparar el proyecto
+> 📋 **Ver instrucciones completas en [DEPLOY.md](./DEPLOY.md)**
+
+### Resumen del proceso:
+
+1. **Importar a Vercel**: Conecta tu repositorio GitHub
+2. **Configurar Supabase**: Usa Vercel Storage > Supabase para la base de datos
+3. **Variables de entorno**:
+   ```
+   NEXTAUTH_SECRET=genera-con-openssl-rand-base64-32
+   NEXTAUTH_URL=https://tu-app.vercel.app
+   # DATABASE_URL se configura automáticamente
+   ```
+4. **Desplegar**: Vercel hace el build automáticamente
+5. **Crear admin**: Ejecutar `npx tsx scripts/create-admin.ts` desde Vercel terminal
+
+### Scripts útiles para producción:
 ```bash
-# Construir el proyecto para verificar que todo funciona
-npm run build
-```
+# Verificar estado de la app
+npx tsx scripts/check-app-status.ts
 
-### 2. Configurar base de datos en producción
-
-**Opción A: Vercel Postgres (Recomendado)**
-1. Ve a tu proyecto en Vercel Dashboard
-2. En la pestaña "Storage", crea una base de datos PostgreSQL
-3. Copia la `DATABASE_URL` generada
-
-**Opción B: Supabase (Alternativa gratuita)**
-1. Crear cuenta en [Supabase](https://supabase.com)
-2. Crear nuevo proyecto
-3. Ir a Settings > Database > Connection string
-4. Copiar la URL de conexión
-
-### 3. Configurar variables de entorno en Vercel
-En el Dashboard de Vercel, ve a Settings > Environment Variables:
-
-```
-DATABASE_URL=postgresql://...
-NEXTAUTH_SECRET=tu-secret-muy-seguro-para-produccion
-NEXTAUTH_URL=https://tu-dominio.vercel.app
-NEXT_PUBLIC_APP_NAME=Gestión Familiar Morcilla
-NEXT_PUBLIC_APP_VERSION=1.0.0
-```
-
-### 4. Desplegar
-```bash
-# Instalar Vercel CLI (si no lo tienes)
-npm i -g vercel
-
-# Desplegar
-vercel --prod
-```
-
-### 5. Ejecutar migraciones en producción
-Después del despliegue, ejecuta las migraciones:
-```bash
-# Desde tu local, apuntando a producción
-npx prisma migrate deploy
-npx prisma db seed
+# Crear usuario administrador
+npx tsx scripts/create-admin.ts
 ```
 
 ## 📊 Diagrama de Base de Datos
