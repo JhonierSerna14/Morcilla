@@ -1,31 +1,42 @@
-import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-export default auth((req: NextRequest & { auth: any }) => {
-  const isAuth = !!req.auth
-  const isAuthPage = req.nextUrl.pathname.startsWith('/login')
-  const isPublicPage = req.nextUrl.pathname === '/' || req.nextUrl.pathname.startsWith('/api/auth')
-
-  if (isAuthPage) {
-    if (isAuth) {
-      return NextResponse.redirect(new URL('/dashboard', req.nextUrl))
-    }
-    return null
+export function middleware(request: NextRequest) {
+  // Rutas públicas que no requieren autenticación
+  const publicPaths = ['/login', '/register', '/api/auth']
+  const isPublicPath = publicPaths.some(path => 
+    request.nextUrl.pathname.startsWith(path)
+  )
+  
+  // Si es ruta pública, permitir acceso
+  if (isPublicPath || request.nextUrl.pathname === '/') {
+    return NextResponse.next()
   }
 
-  if (!isAuth && !isPublicPage) {
-    let from = req.nextUrl.pathname
-    if (req.nextUrl.search) {
-      from += req.nextUrl.search
-    }
-    
-    return NextResponse.redirect(
-      new URL(`/login?from=${encodeURIComponent(from)}`, req.nextUrl)
-    )
+  // Verificar si existe token de sesión (simplificado para Edge Runtime)
+  const sessionToken = request.cookies.get('next-auth.session-token')?.value ||
+                      request.cookies.get('__Secure-next-auth.session-token')?.value
+
+  // Si no hay token, redirigir a login
+  if (!sessionToken) {
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('from', request.nextUrl.pathname)
+    return NextResponse.redirect(loginUrl)
   }
-})
+
+  return NextResponse.next()
+}
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public assets (png, jpg, jpeg, gif, svg, webp)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp)$).*)',
+  ],
 }
