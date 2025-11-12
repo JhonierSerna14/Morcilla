@@ -93,10 +93,10 @@ function CustomerDetailContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando información del cliente...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">⏳ Cargando información del cliente...</p>
         </div>
       </div>
     )
@@ -104,13 +104,13 @@ function CustomerDetailContent() {
 
   if (!customer) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Cliente no encontrado</h1>
-          <p className="text-gray-600 mb-4">No se pudo encontrar la información del cliente.</p>
-          <Button onClick={() => router.back()}>
+          <h1 className="text-2xl font-bold text-foreground mb-2">🚫 Cliente no encontrado</h1>
+          <p className="text-muted-foreground mb-4">No se pudo encontrar la información del cliente.</p>
+          <Button onClick={() => router.back()} className="text-base h-12">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
+            ← Volver
           </Button>
         </div>
       </div>
@@ -118,9 +118,9 @@ function CustomerDetailContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4">
             <div className="flex items-center">
@@ -130,11 +130,11 @@ function CustomerDetailContent() {
                 className="mr-4"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
+                ← Volver
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{customer.name}</h1>
-                <p className="text-gray-600">Detalle del cliente</p>
+                <h1 className="text-2xl font-bold text-foreground">👤 {customer.name}</h1>
+                <p className="text-muted-foreground">Detalle del cliente</p>
               </div>
             </div>
           </div>
@@ -148,62 +148,62 @@ function CustomerDetailContent() {
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-foreground">
                   <User className="w-5 h-5 mr-2" />
-                  Información del Cliente
+                  👤 Información del Cliente
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-lg">{customer.name}</h3>
+                  <h3 className="font-semibold text-lg text-foreground">{customer.name}</h3>
                 </div>
                 
                 {customer.phone && (
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-muted-foreground">
                     <Phone className="w-4 h-4 mr-2" />
                     {customer.phone}
                   </div>
                 )}
                 
                 {customer.address && (
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-muted-foreground">
                     <MapPin className="w-4 h-4 mr-2" />
                     {customer.address}
                   </div>
                 )}
 
                 {/* Financial Summary */}
-                <div className="border-t pt-4">
+                <div className="border-t border-border pt-4">
                   <div className="grid grid-cols-1 gap-4">
-                    <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
-                      <div className="text-2xl font-bold text-red-600">
+                    <div className="text-center p-4 bg-destructive/10 rounded-lg border border-destructive/20">
+                      <div className="text-2xl font-bold text-destructive">
                         ${customer.totalDebt.toLocaleString()}
                       </div>
-                      <div className="text-sm text-red-600">Debe actualmente</div>
+                      <div className="text-sm text-destructive">💰 Debe actualmente</div>
                     </div>
                     
-                    <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                      <div className="text-2xl font-bold text-green-600">
+                    <div className="text-center p-4 bg-accent/10 rounded-lg border border-accent/20">
+                      <div className="text-2xl font-bold text-accent">
                         ${customer.totalPaid.toLocaleString()}
                       </div>
-                      <div className="text-sm text-green-600">Total pagado</div>
+                      <div className="text-sm text-accent">✅ Total pagado</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Quick Stats */}
-                <div className="border-t pt-4 space-y-2">
+                <div className="border-t border-border pt-4 space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Total de ventas:</span>
-                    <span className="font-semibold">{sales.length}</span>
+                    <span className="text-muted-foreground">🛒 Total de ventas:</span>
+                    <span className="font-semibold text-foreground">{sales.length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Total de cobros:</span>
-                    <span className="font-semibold">{collections.length}</span>
+                    <span className="text-muted-foreground">💳 Total de cobros:</span>
+                    <span className="font-semibold text-foreground">{collections.length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Libras compradas:</span>
-                    <span className="font-semibold">
+                    <span className="text-muted-foreground">⚖️ Libras compradas:</span>
+                    <span className="font-semibold text-foreground">
                       {sales.reduce((sum, sale) => sum + sale.pounds, 0)} libras
                     </span>
                   </div>
@@ -218,52 +218,52 @@ function CustomerDetailContent() {
             {/* Sales History */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-foreground">
                   <ShoppingCart className="w-5 h-5 mr-2" />
-                  Historial de Ventas ({sales.length})
+                  🛒 Historial de Ventas ({sales.length})
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {sales.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    No hay ventas registradas para este cliente
+                  <div className="text-center py-8 text-muted-foreground">
+                    ℹ️ No hay ventas registradas para este cliente
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {sales.map((sale) => (
-                      <div key={sale.id} className="border rounded-lg p-4">
+                      <div key={sale.id} className="border-2 border-border rounded-lg p-4 hover:bg-primary/5 transition">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center mb-2">
-                              <span className="font-semibold mr-2">
+                              <span className="font-semibold mr-2 text-foreground">
                                 {sale.pounds} libras × ${sale.pricePerPound.toLocaleString()}
                               </span>
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                 sale.paymentStatus === 'PAID' 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : 'bg-red-100 text-red-800'
+                                  ? 'bg-accent/20 text-accent' 
+                                  : 'bg-destructive/20 text-destructive'
                               }`}>
-                                {sale.paymentStatus === 'PAID' ? 'Pagado' : 'A crédito'}
+                                {sale.paymentStatus === 'PAID' ? '✅ Pagado' : '⏳ A crédito'}
                               </span>
                             </div>
                             
-                            <div className="text-sm text-gray-600 space-y-1">
+                            <div className="text-sm text-muted-foreground space-y-1">
                               <div className="flex items-center">
                                 <Calendar className="w-4 h-4 mr-1" />
                                 {new Date(sale.saleDate).toLocaleDateString()}
                               </div>
-                              <div>Tanda: {formatBatchName(sale.batch)}</div>
+                              <div>📋 Tanda: {formatBatchName(sale.batch)}</div>
                               {sale.paymentMethod && (
-                                <div>Pagado con: {sale.paymentMethod}</div>
+                                <div>💳 Pagado con: {sale.paymentMethod}</div>
                               )}
                               {sale.notes && (
-                                <div>Nota: {sale.notes}</div>
+                                <div>📝 Nota: {sale.notes}</div>
                               )}
                             </div>
                           </div>
                           
                           <div className="text-right">
-                            <div className="text-lg font-bold text-blue-600">
+                            <div className="text-lg font-bold text-primary">
                               ${sale.totalAmount.toLocaleString()}
                             </div>
                           </div>
@@ -278,45 +278,45 @@ function CustomerDetailContent() {
             {/* Collections History */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-foreground">
                   <CreditCard className="w-5 h-5 mr-2" />
-                  Historial de Cobros ({collections.length})
+                  💳 Historial de Cobros ({collections.length})
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {collections.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    No hay cobros registrados para este cliente
+                  <div className="text-center py-8 text-muted-foreground">
+                    ℹ️ No hay cobros registrados para este cliente
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {collections.map((collection) => (
-                      <div key={collection.id} className="border rounded-lg p-4 bg-green-50">
+                      <div key={collection.id} className="border-2 border-accent/30 rounded-lg p-4 bg-accent/5">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center mb-2">
-                              <span className="font-semibold mr-2">Cobro</span>
-                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              <span className="font-semibold mr-2 text-foreground">✅ Cobro</span>
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-accent/20 text-accent">
                                 {collection.paymentMethod}
                               </span>
                             </div>
                             
-                            <div className="text-sm text-gray-600 space-y-1">
+                            <div className="text-sm text-muted-foreground space-y-1">
                               <div className="flex items-center">
                                 <Calendar className="w-4 h-4 mr-1" />
                                 {new Date(collection.collectionDate).toLocaleDateString()}
                               </div>
                               {collection.batch && (
-                                <div>Tanda: {collection.batch.name}</div>
+                                <div>📋 Tanda: {collection.batch.name}</div>
                               )}
                               {collection.notes && (
-                                <div>Nota: {collection.notes}</div>
+                                <div> Nota: {collection.notes}</div>
                               )}
                             </div>
                           </div>
                           
                           <div className="text-right">
-                            <div className="text-lg font-bold text-green-600">
+                            <div className="text-lg font-bold text-accent">
                               +${collection.amount.toLocaleString()}
                             </div>
                           </div>
@@ -337,10 +337,10 @@ function CustomerDetailContent() {
 export default function CustomerDetailPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando detalles del cliente...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">⏳ Cargando detalles del cliente...</p>
         </div>
       </div>
     }>

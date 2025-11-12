@@ -192,23 +192,23 @@ export default function CollectionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">⏳ Cargando...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-card border-b border-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Cobrar Deudas</h1>
-            <p className="text-gray-600">
+            <h1 className="text-2xl font-bold text-foreground">💳 Cobrar Deudas</h1>
+            <p className="text-muted-foreground">
               Registra los pagos de clientes que compraron a crédito
             </p>
           </div>
@@ -218,10 +218,10 @@ export default function CollectionsPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Success Message */}
         {success && (
-          <Card className="border-green-200 bg-green-50">
+          <Card className="border-accent bg-accent/10">
             <CardContent className="flex items-center justify-center py-4">
-              <CheckCircle className="w-6 h-6 text-green-600 mr-2" />
-              <span className="text-green-800 font-medium">¡Cobro registrado exitosamente!</span>
+              <CheckCircle className="w-6 h-6 text-accent mr-2" />
+              <span className="text-accent font-medium">✅ ¡Cobro registrado exitosamente!</span>
             </CardContent>
           </Card>
         )}
@@ -229,33 +229,33 @@ export default function CollectionsPage() {
         {/* Registro de Cobro */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
+            <CardTitle className="flex items-center text-foreground">
               <DollarSign className="w-5 h-5 mr-2" />
-              Registrar Cobro
+              💰 Registrar Cobro
             </CardTitle>
             <CardDescription>
               {activeBatch 
-                ? `Tanda activa: ${activeBatch.name}` 
-                : "No hay tanda activa"}
+                ? `📋 Tanda activa: ${activeBatch.name}` 
+                : "⚠️ No hay tanda activa"}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Buscar Cliente */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Buscar Cliente con Deuda</label>
+              <label className="text-base font-semibold text-foreground">👤 Buscar Cliente con Deuda</label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   placeholder="Buscar por nombre o teléfono..."
                   value={searchCustomer}
                   onChange={(e) => setSearchCustomer(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 text-base"
                 />
               </div>
               
               {/* Lista de clientes filtrados */}
               {filteredCustomers.length > 0 && (
-                <div className="border border-gray-200 rounded-md bg-white max-h-40 overflow-y-auto">
+                <div className="border-2 border-border rounded-lg bg-background max-h-40 overflow-y-auto">
                   {filteredCustomers.map((customer) => (
                     <button
                       key={customer.id}
@@ -264,20 +264,20 @@ export default function CollectionsPage() {
                         setSearchCustomer(customer.name)
                         setFilteredCustomers([])
                       }}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                      className="w-full text-left px-4 py-3 hover:bg-primary/5 border-b border-border last:border-b-0 transition"
                     >
                       <div className="flex justify-between items-center">
                         <div>
-                          <div className="font-medium">{customer.name}</div>
+                          <div className="font-medium text-foreground">{customer.name}</div>
                           {customer.phone && (
-                            <div className="text-sm text-gray-500">{customer.phone}</div>
+                            <div className="text-sm text-muted-foreground">{customer.phone}</div>
                           )}
                         </div>
                         <div className="text-right">
-                          <div className="font-bold text-red-600">
+                          <div className="font-bold text-destructive">
                             ${customer.totalDebt.toLocaleString()}
                           </div>
-                          <div className="text-sm text-gray-500">Debe</div>
+                          <div className="text-sm text-muted-foreground">💰 Debe</div>
                         </div>
                       </div>
                     </button>
@@ -287,7 +287,7 @@ export default function CollectionsPage() {
             </div>
 
             {selectedCustomer && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-4">
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="font-medium text-blue-900">{selectedCustomer.name}</h3>
@@ -368,7 +368,7 @@ export default function CollectionsPage() {
         {/* Resumen de Clientes con Deuda */}
         <Card>
           <CardHeader>
-            <CardTitle>Clientes con Deudas Pendientes</CardTitle>
+            <CardTitle>👥 Clientes con Deudas Pendientes</CardTitle>
             <CardDescription>
               {customers.length} clientes deben un total de ${customers.reduce((sum, c) => sum + c.totalDebt, 0).toLocaleString()}
             </CardDescription>
@@ -376,29 +376,29 @@ export default function CollectionsPage() {
           <CardContent>
             {customers.length === 0 ? (
               <div className="text-center py-8">
-                <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-2" />
-                <p className="text-gray-500">¡Excelente! No hay deudas pendientes</p>
+                <CheckCircle className="w-12 h-12 text-accent mx-auto mb-2" />
+                <p className="text-muted-foreground">✅ ¡Excelente! No hay deudas pendientes</p>
               </div>
             ) : (
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {customers.slice(0, 10).map((customer) => (
-                  <div key={customer.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <div key={customer.id} className="flex justify-between items-center p-3 bg-destructive/10 rounded-lg border border-destructive/20">
                     <div>
-                      <div className="font-medium">{customer.name}</div>
+                      <div className="font-medium text-foreground">{customer.name}</div>
                       {customer.phone && (
-                        <div className="text-sm text-gray-500">{customer.phone}</div>
+                        <div className="text-sm text-muted-foreground">{customer.phone}</div>
                       )}
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-red-600">
+                      <div className="font-bold text-destructive">
                         ${customer.totalDebt.toLocaleString()}
                       </div>
                     </div>
                   </div>
                 ))}
                 {customers.length > 10 && (
-                  <div className="text-center text-gray-500 text-sm py-2">
-                    Y {customers.length - 10} clientes más...
+                  <div className="text-center text-muted-foreground text-sm py-2">
+                    📋 Y {customers.length - 10} clientes más...
                   </div>
                 )}
               </div>
@@ -409,29 +409,29 @@ export default function CollectionsPage() {
         {/* Historial de Cobros Recientes */}
         <Card>
           <CardHeader>
-            <CardTitle>Cobros Recientes</CardTitle>
+            <CardTitle>💳 Cobros Recientes</CardTitle>
           </CardHeader>
           <CardContent>
             {collections.length === 0 ? (
               <div className="text-center py-8">
-                <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-500">No hay cobros registrados</p>
+                <CreditCard className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+                <p className="text-muted-foreground">ℹ️ No hay cobros registrados</p>
               </div>
             ) : (
               <div className="space-y-3 max-h-64 overflow-y-auto">
                 {collections.slice(0, 5).map((collection) => (
-                  <div key={collection.id} className="flex justify-between items-center p-3 border border-gray-200 rounded-lg">
+                  <div key={collection.id} className="flex justify-between items-center p-3 border-2 border-border rounded-lg hover:bg-primary/5 transition">
                     <div>
-                      <div className="font-medium">{collection.customer.name}</div>
-                      <div className="text-sm text-gray-500">
+                      <div className="font-medium text-foreground">{collection.customer.name}</div>
+                      <div className="text-sm text-muted-foreground">
                         {new Date(collection.collectionDate).toLocaleDateString('es-CO')} - {collection.paymentMethod}
                       </div>
                       {collection.batch && (
-                        <div className="text-xs text-blue-600">{collection.batch.name}</div>
+                        <div className="text-xs text-primary">📋 {collection.batch.name}</div>
                       )}
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-green-600">
+                      <div className="font-bold text-accent">
                         +${collection.amount.toLocaleString()}
                       </div>
                     </div>

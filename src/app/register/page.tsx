@@ -22,10 +22,10 @@ export default function RegisterPage() {
   // Solo admins pueden acceder
   if (!session || session.user?.role !== 'ADMIN') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-red-600">Acceso Denegado</CardTitle>
+            <CardTitle className="text-red-600">🚫 Acceso Denegado</CardTitle>
             <CardDescription>
               Solo los administradores pueden crear usuarios
             </CardDescription>
@@ -70,11 +70,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto pt-8">
         <Card>
           <CardHeader>
-            <CardTitle>Crear Nuevo Usuario</CardTitle>
+            <CardTitle>👤 Crear Nuevo Usuario</CardTitle>
             <CardDescription>
               Solo administradores pueden crear usuarios del sistema
             </CardDescription>
@@ -82,64 +82,68 @@ export default function RegisterPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Email</label>
+                <label className="block text-base font-semibold text-foreground mb-2">📧 Email</label>
                 <Input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                   required
-                  className="w-full"
+                  className="w-full text-base"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Nombre Completo</label>
+                <label className="block text-base font-semibold text-foreground mb-2">👤 Nombre Completo</label>
                 <Input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                   required
-                  className="w-full"
+                  className="w-full text-base"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Contraseña</label>
+                <label className="block text-base font-semibold text-foreground mb-2">🔐 Contraseña</label>
                 <Input
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                   required
                   minLength={6}
-                  className="w-full"
+                  className="w-full text-base"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Rol</label>
+                <label className="block text-base font-semibold text-foreground mb-2">🎯 Rol</label>
                 <select
                   value={formData.role}
                   onChange={(e) => setFormData({...formData, role: e.target.value})}
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full h-12 px-4 border-2 border-border rounded-lg bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
                 >
-                  <option value="VENDEDOR">Vendedor</option>
-                  <option value="COBRADOR">Cobrador</option>
-                  <option value="ADMIN">Administrador</option>
+                  <option value="VENDEDOR">💵 Vendedor</option>
+                  <option value="COBRADOR">💳 Cobrador</option>
+                  <option value="ADMIN">👨‍💼 Administrador</option>
                 </select>
               </div>
 
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="w-full"
+                className="w-full text-base h-12"
               >
-                {loading ? "Creando usuario..." : "Crear Usuario"}
+                {loading ? "⏳ Creando usuario..." : "✅ Crear Usuario"}
               </Button>
             </form>
 
             {message && (
-              <div className="mt-4 p-3 rounded-md bg-gray-100">
-                <p className="text-sm">{message}</p>
+              <div className={`mt-4 p-4 rounded-lg ${
+                message.includes('✅') 
+                  ? 'bg-accent/10 text-accent' 
+                  : 'bg-destructive/10 text-destructive'
+              }`}>
+                <p className="text-base font-medium">{message}</p>
               </div>
             )}
 

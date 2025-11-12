@@ -317,26 +317,26 @@ export default function BatchDetailPage() {
           <CardContent>
             {batchDetails.debtorsSummary.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <CheckCircle className="w-12 h-12 mx-auto mb-3 text-green-500" />
-                <p className="font-medium">¡Todas las deudas cobradas!</p>
-                <p className="text-sm">No hay deudas pendientes en esta tanda</p>
+                <CheckCircle className="w-12 h-12 mx-auto mb-3 text-accent" />
+                <p className="font-medium text-foreground">✅ ¡Todas las deudas cobradas!</p>
+                <p className="text-sm text-muted-foreground">No hay deudas pendientes en esta tanda</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {batchDetails.debtorsSummary.map((debtor) => (
                   <div
                     key={debtor.customerId}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                    className="flex items-center justify-between p-4 bg-destructive/10 rounded-lg border border-destructive/20"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <User className="w-4 h-4 text-gray-500" />
-                        <span className="font-medium">{debtor.customerName}</span>
+                        <User className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium text-foreground">{debtor.customerName}</span>
                       </div>
                       {debtor.customerPhone && (
                         <div className="flex items-center gap-2 mb-1">
-                          <Phone className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm text-gray-600">{debtor.customerPhone}</span>
+                          <Phone className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">{debtor.customerPhone}</span>
                         </div>
                       )}
                       <div className="text-sm text-gray-600">

@@ -2,48 +2,51 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Modo Claro Único - Paleta Cálida y Accesible para Adultos Mayores */
+    
+    /* Fondo: Crema cálida muy clara */
+    --background: 45 100% 97%;
+    --foreground: 220 20% 18%;
+    
+    /* Cards: Blanco puro con bordes suaves */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 20% 15%;
+    
+    /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.75rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
+    --popover-foreground: 220 20% 15%;
+    
+    /* Primary: Azul cálido y amigable - Acciones principales */
+    --primary: 200 90% 48%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary: Naranja cálido - Elementos secundarios */
+    --secondary: 35 100% 55%;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Muted: Grises suaves para elementos secundarios */
+    --muted: 220 10% 90%;
+    --muted-foreground: 220 8% 50%;
+    
+    /* Accent: Verde tranquilizante y amigable - Éxito */
+    --accent: 140 65% 50%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* Destructive: Rojo accesible - Errores/Eliminación */
+    --destructive: 0 88% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Border: Gris claro para bordes */
+    --border: 220 12% 88%;
+    
+    /* Input: Gris muy claro para inputs */
+    --input: 220 12% 94%;
+    
+    /* Ring: Azul para focus estados */
+    --ring: 200 90% 48%;
+    
+    /* Radio de bordes */
+    --radius: 0.875rem;
   }
 }
 
@@ -54,48 +57,88 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Custom styles para el negocio familiar */
+/* Accesibilidad: Enfoque visible para navegación por teclado */
+@layer base {
+  :focus-visible {
+    outline: 3px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+  
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible {
+    outline: 3px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
+
+/* Custom styles para el negocio familiar - Adultos Mayores Friendly */
 .mobile-friendly {
-  font-size: 1rem;
+  font-size: 1.0625rem;
+  letter-spacing: 0.3px;
 }
 
 @media (min-width: 768px) {
   .mobile-friendly {
-    font-size: 0.875rem;
+    font-size: 1rem;
   }
 }
 
+/* Gradientes accesibles y cálidos */
 .gradient-primary {
-  background: linear-gradient(to right, #3b82f6, #2563eb);
+  background: linear-gradient(135deg, hsl(200 90% 48%), hsl(200 85% 42%));
 }
 
 .dark .gradient-primary {
-  background: linear-gradient(to right, #2563eb, #1d4ed8);
+  background: linear-gradient(135deg, hsl(200 90% 58%), hsl(200 85% 52%));
 }
 
 .gradient-success {
-  background: linear-gradient(to right, #10b981, #059669);
+  background: linear-gradient(135deg, hsl(140 65% 50%), hsl(140 60% 44%));
 }
 
 .dark .gradient-success {
-  background: linear-gradient(to right, #059669, #047857);
+  background: linear-gradient(135deg, hsl(140 65% 60%), hsl(140 60% 54%));
 }
 
 .gradient-warning {
-  background: linear-gradient(to right, #f59e0b, #d97706);
+  background: linear-gradient(135deg, hsl(35 100% 55%), hsl(35 95% 48%));
 }
 
 .dark .gradient-warning {
-  background: linear-gradient(to right, #d97706, #b45309);
+  background: linear-gradient(135deg, hsl(35 100% 65%), hsl(35 95% 58%));
 }
 
 .gradient-danger {
-  background: linear-gradient(to right, #ef4444, #dc2626);
+  background: linear-gradient(135deg, hsl(0 88% 50%), hsl(0 82% 44%));
 }
 
 .dark .gradient-danger {
-  background: linear-gradient(to right, #dc2626, #b91c1c);
+  background: linear-gradient(135deg, hsl(0 88% 60%), hsl(0 82% 54%));
+}
+
+/* Estados de interacción para adultos mayores */
+.interactive-large {
+  min-height: 3.5rem;
+  min-width: 3.5rem;
+  padding: 0.875rem 1.25rem;
+  border-radius: 0.875rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.interactive-large:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.interactive-large:active {
+  transform: scale(0.98);
 }

@@ -160,13 +160,13 @@ export default function UsersPage() {
 
   if (session && session.user.role !== "ADMIN") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Acceso Denegado</h1>
-          <p className="text-gray-600 mb-4">Solo los administradores pueden gestionar usuarios</p>
-          <Button onClick={() => router.push("/dashboard")}>
-            Volver al Dashboard
+          <div className="text-6xl mb-4">🔒</div>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Acceso Denegado</h1>
+          <p className="text-muted-foreground text-base mb-6">Solo los administradores pueden gestionar usuarios</p>
+          <Button onClick={() => router.push("/dashboard")} size="lg" className="text-base">
+            ⬅️ Volver al Dashboard
           </Button>
         </div>
       </div>
@@ -175,23 +175,23 @@ export default function UsersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando usuarios...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground text-base">Cargando usuarios...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background pb-32 lg:pb-12">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-card shadow-sm border-b-2 border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
-            <p className="text-gray-600">
+          <div className="py-5">
+            <h1 className="text-3xl font-bold text-foreground">👥 Gestión de Usuarios</h1>
+            <p className="text-muted-foreground text-base mt-1">
               Crear y administrar usuarios del sistema
             </p>
           </div>
@@ -201,21 +201,21 @@ export default function UsersPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Crear Usuario */}
-          <Card>
+          <Card className="shadow-md">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <UserPlus className="w-5 h-5 mr-2" />
-                Crear Nuevo Usuario
+              <CardTitle className="flex items-center text-xl">
+                <UserPlus className="w-6 h-6 mr-3 text-primary" />
+                ✏️ Crear Nuevo Usuario
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-base">
                 Registra un nuevo vendedor, cobrador o administrador
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Nombre completo *
+                  <label className="block text-base font-semibold text-foreground mb-2">
+                    👤 Nombre completo *
                   </label>
                   <Input
                     placeholder="Ej: Juan Pérez"
@@ -223,13 +223,14 @@ export default function UsersPage() {
                     onChange={(e) =>
                       setUserForm({ ...userForm, name: e.target.value })
                     }
+                    className="text-base"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Email *
+                  <label className="block text-base font-semibold text-foreground mb-2">
+                    📧 Email *
                   </label>
                   <Input
                     type="email"
@@ -238,13 +239,14 @@ export default function UsersPage() {
                     onChange={(e) =>
                       setUserForm({ ...userForm, email: e.target.value })
                     }
+                    className="text-base"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Contraseña *
+                  <label className="block text-base font-semibold text-foreground mb-2">
+                    🔑 Contraseña *
                   </label>
                   <div className="relative">
                     <Input
@@ -254,38 +256,39 @@ export default function UsersPage() {
                       onChange={(e) =>
                         setUserForm({ ...userForm, password: e.target.value })
                       }
+                      className="text-base pr-12"
                       required
                       minLength={6}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2"
                     >
                       {showPassword ? (
-                        <EyeOff className="w-4 h-4 text-gray-500" />
+                        <EyeOff className="w-5 h-5 text-muted-foreground" />
                       ) : (
-                        <Eye className="w-4 h-4 text-gray-500" />
+                        <Eye className="w-5 h-5 text-muted-foreground" />
                       )}
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Rol *
+                  <label className="block text-base font-semibold text-foreground mb-2">
+                    👔 Rol *
                   </label>
                   <select
                     value={userForm.role}
                     onChange={(e) =>
                       setUserForm({ ...userForm, role: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 h-12 border-2 border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-base bg-background text-foreground"
                     required
                   >
-                    <option value="VENDEDOR">Vendedor</option>
-                    <option value="COBRADOR">Cobrador</option>
-                    <option value="ADMIN">Administrador</option>
+                    <option value="VENDEDOR">🛒 Vendedor</option>
+                    <option value="COBRADOR">📱 Cobrador</option>
+                    <option value="ADMIN">🔐 Administrador</option>
                   </select>
                 </div>
 
@@ -293,22 +296,22 @@ export default function UsersPage() {
                   type="submit"
                   disabled={saving}
                   size="lg"
-                  className="w-full"
+                  className="w-full text-base"
                 >
-                  {saving ? "Creando usuario..." : "Crear Usuario"}
+                  {saving ? "⏳ Creando usuario..." : "➕ Crear Usuario"}
                 </Button>
               </form>
             </CardContent>
           </Card>
 
           {/* Lista de Usuarios */}
-          <Card>
+          <Card className="shadow-md">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Users className="w-5 h-5 mr-2" />
-                Usuarios Registrados ({users.length})
+              <CardTitle className="flex items-center text-xl">
+                <Users className="w-6 h-6 mr-3 text-primary" />
+                📋 Usuarios Registrados ({users.length})
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-base">
                 Administra los usuarios existentes
               </CardDescription>
             </CardHeader>
@@ -317,51 +320,52 @@ export default function UsersPage() {
                 {users.map((user) => (
                   <div
                     key={user.id}
-                    className={`p-4 rounded-lg border ${
+                    className={`p-5 rounded-lg border-2 transition-all ${
                       user.active
-                        ? "bg-white border-gray-200"
-                        : "bg-gray-50 border-gray-300"
+                        ? "bg-card border-border hover:bg-muted"
+                        : "bg-muted border-border opacity-75"
                     }`}
                   >
-                    <div className="flex justify-between items-start">
+                    <div className="flex justify-between items-start gap-4">
                       <div className="flex-1">
-                        <h3 className={`font-medium ${
-                          user.active ? "text-gray-900" : "text-gray-500"
+                        <h3 className={`font-semibold text-base ${
+                          user.active ? "text-foreground" : "text-muted-foreground"
                         }`}>
                           {user.name}
                         </h3>
                         <p className={`text-sm ${
-                          user.active ? "text-gray-600" : "text-gray-400"
+                          user.active ? "text-muted-foreground" : "text-muted-foreground/60"
                         }`}>
-                          {user.email}
+                          📧 {user.email}
                         </p>
-                        <div className="flex items-center mt-1">
-                          <span className={`text-xs px-2 py-1 rounded-full ${
+                        <div className="flex items-center gap-2 mt-3 flex-wrap">
+                          <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
                             user.role === "ADMIN"
-                              ? "bg-purple-100 text-purple-700"
+                              ? "bg-secondary/20 text-secondary"
                               : user.role === "VENDEDOR"
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-green-100 text-green-700"
+                              ? "bg-primary/20 text-primary"
+                              : "bg-accent/20 text-accent"
                           }`}>
-                            {user.role}
+                            {user.role === "ADMIN" ? "🔐" : user.role === "VENDEDOR" ? "🛒" : "📱"} {user.role}
                           </span>
-                          <span className={`text-xs ml-2 px-2 py-1 rounded-full ${
+                          <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
                             user.active
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
+                              ? "bg-accent/20 text-accent"
+                              : "bg-destructive/20 text-destructive"
                           }`}>
-                            {user.active ? "Activo" : "Inactivo"}
+                            {user.active ? "✅ Activo" : "❌ Inactivo"}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-400 mt-1">
-                          Creado: {new Date(user.createdAt).toLocaleDateString('es-CO')}
+                        <p className="text-xs text-muted-foreground mt-2">
+                          📅 Creado: {new Date(user.createdAt).toLocaleDateString('es-CO')}
                         </p>
                       </div>
-                      <div className="ml-4">
+                      <div className="ml-2">
                         <Button
                           onClick={() => toggleUserStatus(user.id, user.active)}
                           variant={user.active ? "outline" : "default"}
-                          size="sm"
+                          size="lg"
+                          className="text-base"
                           disabled={user.id === session?.user?.id}
                           title={
                             user.id === session?.user?.id
@@ -373,12 +377,12 @@ export default function UsersPage() {
                         >
                           {user.active ? (
                             <>
-                              <X className="w-4 h-4 mr-1" />
+                              <X className="w-5 h-5 mr-2" />
                               Desactivar
                             </>
                           ) : (
                             <>
-                              <Check className="w-4 h-4 mr-1" />
+                              <Check className="w-5 h-5 mr-2" />
                               Activar
                             </>
                           )}
@@ -388,9 +392,12 @@ export default function UsersPage() {
                   </div>
                 ))}
                 {users.length === 0 && (
-                  <p className="text-gray-500 text-center py-4">
-                    No hay usuarios registrados
-                  </p>
+                  <div className="text-center py-12">
+                    <div className="text-5xl mb-4">👤</div>
+                    <p className="text-muted-foreground text-base">
+                      No hay usuarios registrados aún
+                    </p>
+                  </div>
                 )}
               </div>
             </CardContent>

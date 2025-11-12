@@ -162,23 +162,23 @@ export default function TransfersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground text-base">Cargando...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background pb-32 lg:pb-12">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-card shadow-sm border-b-2 border-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Transferencias Internas</h1>
-            <p className="text-gray-600">
+          <div className="py-5">
+            <h1 className="text-3xl font-bold text-foreground">🔄 Transferencias Internas</h1>
+            <p className="text-muted-foreground text-base mt-1">
               Registra cuando entregas dinero a otro usuario del sistema
             </p>
           </div>
@@ -188,21 +188,21 @@ export default function TransfersPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Success Message */}
         {success && (
-          <Card className="border-green-200 bg-green-50">
-            <CardContent className="flex items-center justify-center py-4">
-              <CheckCircle className="w-6 h-6 text-green-600 mr-2" />
-              <span className="text-green-800 font-medium">¡Transferencia registrada exitosamente!</span>
+          <Card className="border-2 border-accent bg-accent/10">
+            <CardContent className="flex items-center justify-center py-5">
+              <CheckCircle className="w-6 h-6 text-accent mr-3" />
+              <span className="text-accent font-semibold text-base">✅ ¡Transferencia registrada exitosamente!</span>
             </CardContent>
           </Card>
         )}
 
         {/* Info Card */}
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="flex items-start py-4">
-            <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
-            <div className="text-blue-800">
-              <p className="font-medium mb-1">¿Cuándo usar las transferencias?</p>
-              <ul className="text-sm space-y-1">
+        <Card className="bg-secondary/10 border-2 border-secondary/40">
+          <CardContent className="flex items-start py-5">
+            <AlertCircle className="w-6 h-6 text-secondary mt-0.5 mr-3 flex-shrink-0" />
+            <div className="text-foreground text-base">
+              <p className="font-semibold mb-2">❓ ¿Cuándo usar las transferencias?</p>
+              <ul className="space-y-1 text-muted-foreground">
                 <li>• Cuando le entregas efectivo o Nequi a otro vendedor</li>
                 <li>• Al pasar dinero de ventas al administrador</li>
                 <li>• Para dividir el dinero entre usuarios del sistema</li>
@@ -212,27 +212,27 @@ export default function TransfersPage() {
         </Card>
 
         {/* Registro de Transferencia */}
-        <Card>
+        <Card className="shadow-md">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <ArrowLeftRight className="w-5 h-5 mr-2" />
+            <CardTitle className="flex items-center text-xl">
+              <ArrowLeftRight className="w-6 h-6 mr-3 text-primary" />
               Registrar Transferencia
             </CardTitle>
-            <CardDescription>
-              Desde: {session?.user?.name || "Tu usuario"}
+            <CardDescription className="text-base">
+              De: {session?.user?.name || "Tu usuario"}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Usuario destino */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Usuario Destino *
+                <label className="text-base font-semibold text-foreground">
+                  👤 Usuario Destino *
                 </label>
                 <select
                   value={transferForm.toUserId}
                   onChange={(e) => setTransferForm({...transferForm, toUserId: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
+                  className="w-full h-12 px-4 border-2 border-border rounded-lg bg-background text-foreground text-base focus:outline-none focus:ring-3 focus:ring-primary/50 focus:border-primary"
                   required
                 >
                   <option value="">Selecciona a quién le entregas el dinero...</option>
@@ -246,11 +246,11 @@ export default function TransfersPage() {
 
               {/* Monto */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Monto a Transferir *
+                <label className="text-base font-semibold text-foreground">
+                  💰 Monto a Transferir *
                 </label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
                     type="number"
                     placeholder="Ej: 150000"
@@ -266,13 +266,13 @@ export default function TransfersPage() {
 
               {/* Método de pago */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Tipo de Dinero *
+                <label className="text-base font-semibold text-foreground">
+                  💳 Tipo de Dinero *
                 </label>
                 <select
                   value={transferForm.paymentMethod}
                   onChange={(e) => setTransferForm({...transferForm, paymentMethod: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
+                  className="w-full h-12 px-4 border-2 border-border rounded-lg bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
                 >
                   <option value="EFECTIVO">💵 Efectivo</option>
                   <option value="NEQUI">📱 Nequi</option>
@@ -282,13 +282,13 @@ export default function TransfersPage() {
 
               {/* Concepto */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Concepto/Motivo *
+                <label className="text-base font-semibold text-foreground">
+                  📋 Concepto/Motivo *
                 </label>
                 <select
                   value={transferForm.concept}
                   onChange={(e) => setTransferForm({...transferForm, concept: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
+                  className="w-full h-12 px-4 border-2 border-border rounded-lg bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
                   required
                 >
                   <option value="">Selecciona el motivo...</option>
@@ -303,8 +303,8 @@ export default function TransfersPage() {
 
               {/* Notas */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Notas Adicionales
+                <label className="text-base font-semibold text-foreground">
+                  📝 Notas Adicionales
                 </label>
                 <textarea
                   placeholder="Información adicional sobre la transferencia..."
@@ -339,7 +339,7 @@ export default function TransfersPage() {
         {/* Historial de Transferencias */}
         <Card>
           <CardHeader>
-            <CardTitle>Historial de Transferencias</CardTitle>
+            <CardTitle>📤 Historial de Transferencias</CardTitle>
             <CardDescription>
               Transferencias recientes del sistema
             </CardDescription>
@@ -347,34 +347,34 @@ export default function TransfersPage() {
           <CardContent>
             {transfers.length === 0 ? (
               <div className="text-center py-8">
-                <ArrowLeftRight className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-500">No hay transferencias registradas</p>
+                <ArrowLeftRight className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+                <p className="text-muted-foreground">No hay transferencias registradas</p>
               </div>
             ) : (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {transfers.map((transfer) => (
-                  <div key={transfer.id} className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                  <div key={transfer.id} className="p-4 border-2 border-border rounded-lg bg-background/50 hover:bg-primary/5 transition">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center mb-2">
-                          <ArrowLeftRight className="w-4 h-4 text-purple-600 mr-2" />
-                          <span className="font-medium text-gray-900">{transfer.concept}</span>
+                          <ArrowLeftRight className="w-4 h-4 text-primary mr-2" />
+                          <span className="font-semibold text-foreground">{transfer.concept}</span>
                         </div>
                         
-                        <div className="text-sm text-gray-600 mb-2">
+                        <div className="text-base text-foreground mb-2">
                           <span className="font-medium">{transfer.fromUser.name}</span>
                           <span className="mx-2">→</span>
                           <span className="font-medium">{transfer.toUser.name}</span>
                         </div>
                         
-                        <div className="flex items-center text-xs text-gray-500">
+                        <div className="flex items-center text-sm text-muted-foreground">
                           <span>{new Date(transfer.transferDate).toLocaleDateString('es-CO')}</span>
                           <span className="mx-2">•</span>
                           <span>{transfer.paymentMethod}</span>
                         </div>
                         
                         {transfer.notes && (
-                          <p className="text-sm text-gray-600 mt-2">{transfer.notes}</p>
+                          <p className="text-sm text-muted-foreground mt-2">{transfer.notes}</p>
                         )}
                       </div>
                       

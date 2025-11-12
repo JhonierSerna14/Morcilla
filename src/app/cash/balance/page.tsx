@@ -163,17 +163,17 @@ export default function MiCaja() {
 
       {/* Resumen de Dinero */}
       <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <Card className="border-green-200 bg-green-50">
+        <Card className="border-accent/20 bg-accent/10">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg flex items-center gap-2 text-foreground">
               💵 Efectivo
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-700">
+            <div className="text-2xl font-bold text-accent">
               {formatCurrency(balance.totalCash)}
             </div>
-            <div className="text-sm text-gray-600 mt-2">
+            <div className="text-sm text-muted-foreground mt-2">
               <div>Ventas: {formatCurrency(balance.sales.cash)}</div>
               <div>Cobros: {formatCurrency(balance.collections.cash)}</div>
               <div>Enviado: -{formatCurrency(balance.transfersSent.cash)}</div>
@@ -233,13 +233,13 @@ export default function MiCaja() {
               {recentTransactions.map((transaction) => (
                 <div
                   key={transaction.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border border-primary/20"
                 >
                   <div className="flex items-center gap-3">
                     {getTransactionIcon(transaction.type)}
                     <div>
-                      <div className="font-medium">{transaction.description}</div>
-                      <div className="text-sm text-gray-500">
+                      <div className="font-medium text-foreground">{transaction.description}</div>
+                      <div className="text-sm text-muted-foreground">
                         {formatDate(transaction.date)} • {transaction.method}
                       </div>
                     </div>

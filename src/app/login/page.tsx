@@ -58,26 +58,21 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-950 p-4 relative">
-      {/* Toggle de tema en la esquina superior derecha */}
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
-      
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center text-foreground">
-            Gestión Familiar Morcilla
+          <CardTitle className="text-3xl font-bold text-center text-foreground">
+            🥓 Gestión Familiar Morcilla
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center text-base">
             Ingresa tus credenciales para acceder
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
+              <label htmlFor="email" className="text-base font-semibold text-foreground">
+                📧 Email
               </label>
               <Input
                 id="email"
@@ -86,12 +81,12 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-12"
+                className="h-12 text-base"
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">
-                Contraseña
+              <label htmlFor="password" className="text-base font-semibold text-foreground">
+                🔐 Contraseña
               </label>
               <Input
                 id="password"
@@ -100,11 +95,11 @@ function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="h-12"
+                className="h-12 text-base"
               />
             </div>
             {error && (
-              <div className="text-red-500 dark:text-red-400 text-sm text-center bg-red-50 dark:bg-red-950/50 p-3 rounded-md border border-red-200 dark:border-red-800">
+              <div className="text-destructive text-sm text-center bg-destructive/10 p-4 rounded-lg border border-destructive/20">
                 {error}
               </div>
             )}
@@ -113,7 +108,7 @@ function LoginForm() {
               className="w-full h-12 text-lg"
               disabled={loading}
             >
-              {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
+              {loading ? "⏳ Iniciando sesión..." : "✅ Iniciar Sesión"}
             </Button>
           </form>
         </CardContent>

@@ -156,23 +156,23 @@ export default function ExpensesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground text-base">Cargando...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background pb-32 lg:pb-12">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-card shadow-sm border-b-2 border-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Registro de Gastos</h1>
-            <p className="text-gray-600">
+          <div className="py-5">
+            <h1 className="text-3xl font-bold text-foreground">📊 Registro de Gastos</h1>
+            <p className="text-muted-foreground text-base mt-1">
               Registra todos los gastos y egresos del negocio
             </p>
           </div>
@@ -182,78 +182,78 @@ export default function ExpensesPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Success Message */}
         {success && (
-          <Card className="border-green-200 bg-green-50">
-            <CardContent className="flex items-center justify-center py-4">
-              <CheckCircle className="w-6 h-6 text-green-600 mr-2" />
-              <span className="text-green-800 font-medium">¡Gasto registrado exitosamente!</span>
+          <Card className="border-2 border-accent bg-accent/10">
+            <CardContent className="flex items-center justify-center py-5">
+              <CheckCircle className="w-6 h-6 text-accent mr-3" />
+              <span className="text-accent font-semibold text-base">✅ ¡Gasto registrado exitosamente!</span>
             </CardContent>
           </Card>
         )}
 
         {/* Resumen de Gastos */}
-        <Card className="bg-gradient-to-r from-red-500 to-red-600 text-white">
+        <Card className="bg-gradient-to-r from-destructive/20 to-destructive/10 border-2 border-destructive/30">
           <CardHeader>
-            <CardTitle className="text-2xl">Gastos Totales</CardTitle>
-            <CardDescription className="text-red-100">
+            <CardTitle className="text-2xl text-destructive">💰 Total de Gastos</CardTitle>
+            <CardDescription className="text-base text-destructive/80">
               {expenses.length} gastos registrados
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-bold mb-2">
+            <div className="text-4xl font-bold mb-2 text-destructive">
               ${totalExpenses.toLocaleString()}
             </div>
-            <div className="text-red-100">
+            <div className="text-destructive/70 text-base">
               Total en egresos del negocio
             </div>
           </CardContent>
         </Card>
 
         {/* Registro de Gasto */}
-        <Card>
+        <Card className="shadow-md">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <TrendingUp className="w-5 h-5 mr-2" />
+            <CardTitle className="flex items-center text-xl">
+              <TrendingUp className="w-6 h-6 mr-3 text-primary" />
               Registrar Nuevo Gasto
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-base">
               Ingresa los detalles del gasto o egreso
             </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Balance Display */}
             {balance && (
-              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-800 mb-2 flex items-center">
-                  <Wallet className="w-4 h-4 mr-2" />
-                  Mi Saldo Disponible para Gastos
+              <div className="mb-6 p-5 bg-primary/10 border-2 border-primary/30 rounded-lg">
+                <h3 className="text-base font-semibold text-foreground mb-3 flex items-center">
+                  <Wallet className="w-5 h-5 mr-2" />
+                  💳 Mi Saldo Disponible para Gastos
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <p className="text-xs text-blue-600">Efectivo Disponible</p>
-                    <p className="text-lg font-bold text-blue-800">
+                  <div className="text-center bg-background/50 p-3 rounded border border-border">
+                    <p className="text-sm text-muted-foreground">Efectivo Disponible</p>
+                    <p className="text-lg font-bold text-primary mt-1">
                       {formatCurrency(balance.totalCash)}
                     </p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-xs text-blue-600">Total en Caja</p>
-                    <p className="text-lg font-bold text-blue-800">
+                  <div className="text-center bg-background/50 p-3 rounded border border-border">
+                    <p className="text-sm text-muted-foreground">Total en Caja</p>
+                    <p className="text-lg font-bold text-primary mt-1">
                       {formatCurrency(balance.grandTotal)}
                     </p>
                   </div>
                 </div>
-                <p className="text-xs text-blue-600 mt-2 text-center">
+                <p className="text-sm text-muted-foreground mt-3 text-center">
                   Los gastos se descuentan del efectivo disponible
                 </p>
               </div>
             )}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Monto */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Monto del Gasto *
+                <label className="text-base font-semibold text-foreground">
+                  💰 Monto del Gasto *
                 </label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                   <Input
                     type="number"
                     placeholder="Ej: 50000"
@@ -262,20 +262,20 @@ export default function ExpensesPage() {
                     min="0"
                     step="1000"
                     required
-                    className="pl-10 py-3 text-lg"
+                    className="pl-12 text-base"
                   />
                 </div>
               </div>
 
               {/* Concepto */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Concepto del Gasto *
+                <label className="text-base font-semibold text-foreground">
+                  📝 Concepto del Gasto *
                 </label>
                 <select
                   value={expenseForm.concept}
                   onChange={(e) => setExpenseForm({...expenseForm, concept: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
+                  className="w-full px-4 py-3 h-12 border-2 border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-base bg-background text-foreground"
                   required
                 >
                   <option value="">Selecciona el concepto...</option>
@@ -293,34 +293,34 @@ export default function ExpensesPage() {
 
               {/* Descripción */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Descripción Detallada
+                <label className="text-base font-semibold text-foreground">
+                  📋 Descripción Detallada
                 </label>
                 <div className="relative">
-                  <FileText className="absolute left-3 top-3 text-gray-400 w-4 h-4" />
+                  <FileText className="absolute left-4 top-4 text-muted-foreground w-5 h-5" />
                   <textarea
                     placeholder="Describe el gasto en detalle..."
                     value={expenseForm.description}
                     onChange={(e) => setExpenseForm({...expenseForm, description: e.target.value})}
                     rows={3}
-                    className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-12 p-4 border-2 border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-base bg-background text-foreground"
                   />
                 </div>
               </div>
 
               {/* Fecha */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Fecha del Gasto
+                <label className="text-base font-semibold text-foreground">
+                  📅 Fecha del Gasto
                 </label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                   <Input
                     type="date"
                     value={expenseForm.expenseDate}
                     onChange={(e) => setExpenseForm({...expenseForm, expenseDate: e.target.value})}
                     required
-                    className="pl-10 py-3"
+                    className="pl-12 text-base"
                   />
                 </div>
               </div>
@@ -328,17 +328,18 @@ export default function ExpensesPage() {
               <Button 
                 type="submit" 
                 disabled={saving}
-                className="w-full py-6 text-lg bg-red-600 hover:bg-red-700"
+                size="lg"
+                className="w-full text-base"
               >
                 {saving ? (
                   <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current mr-2"></div>
                     Registrando...
                   </div>
                 ) : (
                   <>
                     <Plus className="w-5 h-5 mr-2" />
-                    Registrar Gasto
+                    💾 Registrar Gasto
                   </>
                 )}
               </Button>
@@ -349,40 +350,40 @@ export default function ExpensesPage() {
         {/* Historial de Gastos */}
         <Card>
           <CardHeader>
-            <CardTitle>Gastos Recientes</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl">📋 Gastos Recientes</CardTitle>
+            <CardDescription className="text-base">
               Últimos gastos registrados en el sistema
             </CardDescription>
           </CardHeader>
           <CardContent>
             {expenses.length === 0 ? (
-              <div className="text-center py-8">
-                <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-500">No hay gastos registrados</p>
+              <div className="text-center py-12">
+                <TrendingUp className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
+                <p className="text-base text-muted-foreground">No hay gastos registrados</p>
               </div>
             ) : (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {expenses.map((expense) => (
-                  <div key={expense.id} className="flex justify-between items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                  <div key={expense.id} className="flex justify-between items-start p-4 border-2 border-border rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex-1">
-                      <div className="flex items-center mb-1">
-                        <h3 className="font-semibold text-gray-900">{expense.concept}</h3>
-                        <span className="ml-2 text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
-                          Gasto
+                      <div className="flex items-center mb-2">
+                        <h3 className="font-semibold text-base text-foreground">{expense.concept}</h3>
+                        <span className="ml-3 text-xs bg-destructive/20 text-destructive px-3 py-1 rounded-full font-medium">
+                          🔴 Gasto
                         </span>
                       </div>
                       {expense.description && (
-                        <p className="text-sm text-gray-600 mb-1">{expense.description}</p>
+                        <p className="text-sm text-muted-foreground mb-2">{expense.description}</p>
                       )}
-                      <div className="flex items-center text-xs text-gray-500">
-                        <Calendar className="w-3 h-3 mr-1" />
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Calendar className="w-4 h-4 mr-2" />
                         {new Date(expense.expenseDate).toLocaleDateString('es-CO')}
                         <span className="mx-2">•</span>
-                        <span>Por: {expense.user.name}</span>
+                        <span>👤 {expense.user.name}</span>
                       </div>
                     </div>
                     <div className="text-right ml-4">
-                      <div className="font-bold text-red-600 text-lg">
+                      <div className="font-bold text-destructive text-lg">
                         -${expense.amount.toLocaleString()}
                       </div>
                     </div>

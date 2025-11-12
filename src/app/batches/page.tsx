@@ -70,23 +70,23 @@ export default function BatchesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando historial...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground text-base">Cargando historial...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background pb-32 lg:pb-12">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-card shadow-sm border-b-2 border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Historial de Tandas</h1>
-            <p className="text-gray-600">
+          <div className="py-5">
+            <h1 className="text-3xl font-bold text-foreground">📊 Historial de Tandas</h1>
+            <p className="text-muted-foreground text-base mt-1">
               Revisa el rendimiento de tandas anteriores y compara métricas
             </p>
           </div>
@@ -96,11 +96,11 @@ export default function BatchesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {batches.length === 0 ? (
           <div className="text-center py-12">
-            <Scale className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No hay tandas cerradas
+            <Scale className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">
+              ⏳ No hay tandas cerradas
             </h3>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground text-base">
               Las tandas aparecerán aquí cuando sean cerradas
             </p>
           </div>
@@ -108,51 +108,51 @@ export default function BatchesPage() {
           <div className="space-y-6">
             {/* Resumen General */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="flex items-center p-6">
-                  <Scale className="w-8 h-8 text-blue-600 mr-4" />
+              <Card className="shadow-sm">
+                <CardContent className="flex items-center p-6 gap-4">
+                  <div className="text-3xl">⚖️</div>
                   <div>
-                    <div className="text-2xl font-bold">
+                    <div className="text-2xl font-bold text-primary">
                       {batches.reduce((sum, batch) => sum + batch.metrics.totalPounds, 0)}
                     </div>
-                    <div className="text-sm text-gray-600">Total Libras</div>
+                    <div className="text-sm text-muted-foreground">Libras Totales</div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="flex items-center p-6">
-                  <DollarSign className="w-8 h-8 text-green-600 mr-4" />
+              <Card className="shadow-sm">
+                <CardContent className="flex items-center p-6 gap-4">
+                  <div className="text-3xl">💰</div>
                   <div>
-                    <div className="text-2xl font-bold">
+                    <div className="text-2xl font-bold text-accent">
                       {formatCurrency(batches.reduce((sum, batch) => sum + batch.metrics.totalRevenue, 0))}
                     </div>
-                    <div className="text-sm text-gray-600">Ingresos Totales</div>
+                    <div className="text-sm text-muted-foreground">Ingresos Totales</div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="flex items-center p-6">
-                  <ShoppingCart className="w-8 h-8 text-purple-600 mr-4" />
+              <Card className="shadow-sm">
+                <CardContent className="flex items-center p-6 gap-4">
+                  <div className="text-3xl">🛒</div>
                   <div>
-                    <div className="text-2xl font-bold">
+                    <div className="text-2xl font-bold text-secondary">
                       {batches.reduce((sum, batch) => sum + batch.metrics.salesCount, 0)}
                     </div>
-                    <div className="text-sm text-gray-600">Ventas Totales</div>
+                    <div className="text-sm text-muted-foreground">Ventas Totales</div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="flex items-center p-6">
-                  <TrendingUp className="w-8 h-8 text-orange-600 mr-4" />
+              <Card className="shadow-sm">
+                <CardContent className="flex items-center p-6 gap-4">
+                  <div className="text-3xl">📈</div>
                   <div>
-                    <div className="text-2xl font-bold">
+                    <div className="text-2xl font-bold text-primary">
                       {Math.round(batches.reduce((sum, batch) => sum + batch.metrics.totalRevenue, 0) / 
                                   batches.reduce((sum, batch) => sum + batch.metrics.totalPounds, 0) || 0)}
                     </div>
-                    <div className="text-sm text-gray-600">Precio Promedio/Lb</div>
+                    <div className="text-sm text-muted-foreground">Precio Prom/Lb</div>
                   </div>
                 </CardContent>
               </Card>
@@ -163,28 +163,28 @@ export default function BatchesPage() {
               {batches.map((batch) => (
                 <Card 
                   key={batch.id} 
-                  className={`cursor-pointer transition-all hover:shadow-lg ${
-                    selectedBatch?.id === batch.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+                  className={`cursor-pointer transition-all hover:shadow-lg border-2 ${
+                    selectedBatch?.id === batch.id ? 'ring-2 ring-primary bg-primary/10 border-primary' : 'border-border'
                   }`}
                   onClick={() => setSelectedBatch(selectedBatch?.id === batch.id ? null : batch)}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-lg">{formatBatchName(batch)}</CardTitle>
-                        <CardDescription>
-                          <div className="flex items-center mt-1">
-                            <Calendar className="w-4 h-4 mr-1" />
+                        <CardTitle className="text-lg text-foreground">📦 {formatBatchName(batch)}</CardTitle>
+                        <CardDescription className="text-base">
+                          <div className="flex items-center mt-2">
+                            <Calendar className="w-4 h-4 mr-2" />
                             {formatDate(batch.productionDate)}
                           </div>
                         </CardDescription>
                       </div>
                       <div className="text-right">
-                        <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">
+                        <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-semibold">
                           Tanda #{batch.number}
                         </span>
                         {batch.closedAt && (
-                          <div className="flex items-center mt-1 text-xs text-gray-500">
+                          <div className="flex items-center justify-end mt-2 text-xs text-muted-foreground">
                             <Clock className="w-3 h-3 mr-1" />
                             {getDuration(batch.productionDate, batch.closedAt)}
                           </div>
@@ -196,61 +196,61 @@ export default function BatchesPage() {
                   <CardContent className="pt-0">
                     {/* Métricas principales */}
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="text-center p-3 bg-blue-50 rounded-lg">
-                        <div className="text-xl font-bold text-blue-600">
+                      <div className="text-center p-4 bg-primary/10 rounded-lg border border-primary/30">
+                        <div className="text-2xl font-bold text-primary">
                           {batch.metrics.totalPounds}
                         </div>
-                        <div className="text-xs text-blue-700">Libras</div>
+                        <div className="text-sm text-muted-foreground font-semibold">⚖️ Libras</div>
                       </div>
-                      <div className="text-center p-3 bg-green-50 rounded-lg">
-                        <div className="text-xl font-bold text-green-600">
+                      <div className="text-center p-4 bg-accent/10 rounded-lg border border-accent/30">
+                        <div className="text-2xl font-bold text-accent">
                           {formatCurrency(batch.metrics.totalRevenue)}
                         </div>
-                        <div className="text-xs text-green-700">Ingresos</div>
+                        <div className="text-sm text-muted-foreground font-semibold">💰 Ingresos</div>
                       </div>
                     </div>
 
                     {/* Detalles expandidos */}
                     {selectedBatch?.id === batch.id && (
-                      <div className="mt-4 pt-4 border-t space-y-3">
+                      <div className="mt-4 pt-4 border-t border-border space-y-3">
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div className="flex justify-between">
-                            <span>Ventas:</span>
-                            <span className="font-medium">{batch.metrics.salesCount}</span>
+                            <span className="text-muted-foreground">🛒 Ventas:</span>
+                            <span className="font-semibold text-foreground">{batch.metrics.salesCount}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Precio/Lb:</span>
-                            <span className="font-medium">
+                            <span className="text-muted-foreground">💵 Precio/Lb:</span>
+                            <span className="font-semibold text-foreground">
                               {formatCurrency(batch.metrics.totalPounds > 0 ? batch.metrics.totalRevenue / batch.metrics.totalPounds : 0)}
                             </span>
                           </div>
                         </div>
 
-                        <div className="bg-gray-50 p-3 rounded-lg space-y-2">
-                          <h4 className="font-medium text-sm text-gray-800">Estado de Pagos:</h4>
-                          <div className="space-y-1 text-sm">
+                        <div className="bg-muted/50 p-4 rounded-lg space-y-3 border border-border">
+                          <h4 className="font-semibold text-base text-foreground">📋 Estado de Pagos</h4>
+                          <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span>Pagado inmediato:</span>
-                              <span className="text-green-600 font-medium">
+                              <span className="text-muted-foreground">💵 Pagado inmediato:</span>
+                              <span className="text-accent font-semibold">
                                 {formatCurrency(batch.metrics.paidAmount)}
                               </span>
                             </div>
                             <div className="flex justify-between">
-                              <span>Cobros posteriores:</span>
-                              <span className="text-blue-600 font-medium">
+                              <span className="text-muted-foreground">📞 Cobros posteriores:</span>
+                              <span className="text-primary font-semibold">
                                 {formatCurrency(batch.metrics.collectionsAmount)}
                               </span>
                             </div>
-                            <div className="flex justify-between">
-                              <span>Total cobrado:</span>
-                              <span className="text-green-600 font-bold">
+                            <div className="flex justify-between border-t border-border pt-2">
+                              <span className="text-foreground font-semibold">✅ Total cobrado:</span>
+                              <span className="text-accent font-bold">
                                 {formatCurrency(batch.metrics.totalCollected)}
                               </span>
                             </div>
                             {batch.metrics.pendingAmount > 0 && (
                               <div className="flex justify-between">
-                                <span>Pendiente:</span>
-                                <span className="text-red-600 font-medium">
+                                <span className="text-foreground font-semibold">⏳ Pendiente:</span>
+                                <span className="text-destructive font-semibold">
                                   {formatCurrency(batch.metrics.pendingAmount)}
                                 </span>
                               </div>
@@ -259,16 +259,16 @@ export default function BatchesPage() {
                         </div>
 
                         {/* Porcentaje de cobro */}
-                        <div className="bg-blue-50 p-3 rounded-lg">
-                          <div className="flex justify-between items-center text-sm mb-1">
-                            <span>Efectividad de Cobro:</span>
-                            <span className="font-bold">
+                        <div className="bg-primary/10 p-4 rounded-lg border border-primary/30">
+                          <div className="flex justify-between items-center text-sm mb-2">
+                            <span className="text-foreground font-semibold">📊 Efectividad de Cobro:</span>
+                            <span className="font-bold text-primary">
                               {Math.round((batch.metrics.totalCollected / batch.metrics.totalRevenue) * 100)}%
                             </span>
                           </div>
-                          <div className="w-full bg-blue-200 rounded-full h-2">
+                          <div className="w-full bg-primary/20 rounded-full h-3">
                             <div 
-                              className="bg-blue-600 h-2 rounded-full transition-all"
+                              className="bg-primary h-3 rounded-full transition-all"
                               style={{
                                 width: `${Math.round((batch.metrics.totalCollected / batch.metrics.totalRevenue) * 100)}%`
                               }}
@@ -279,14 +279,14 @@ export default function BatchesPage() {
                         {/* Botón de acción */}
                         <div className="mt-4">
                           <Button 
-                            size="sm" 
-                            className="w-full"
+                            size="lg" 
+                            className="w-full text-base"
                             onClick={(e) => {
                               e.stopPropagation()
                               router.push(`/batches/${batch.id}`)
                             }}
                           >
-                            Ver Detalles Completos
+                            👁️ Ver Detalles Completos
                           </Button>
                         </div>
                       </div>
@@ -294,8 +294,8 @@ export default function BatchesPage() {
 
                     {/* Indicador para expandir */}
                     <div className="mt-3 text-center">
-                      <span className="text-xs text-gray-500">
-                        {selectedBatch?.id === batch.id ? 'Clic para contraer' : 'Clic para ver detalles'}
+                      <span className="text-xs text-muted-foreground">
+                        {selectedBatch?.id === batch.id ? '⬆️ Clic para contraer' : '⬇️ Clic para ver detalles'}
                       </span>
                     </div>
                   </CardContent>

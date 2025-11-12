@@ -152,9 +152,9 @@ function BatchSalesContent() {
   })
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4">
             <div className="flex items-center">
@@ -164,17 +164,17 @@ function BatchSalesContent() {
                 className="mr-4"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
+                ← Volver
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{batch.name}</h1>
-                <p className="text-gray-600">Ventas y cobros de la tanda #{batch.number}</p>
+                <h1 className="text-2xl font-bold text-foreground">📋 {batch.name}</h1>
+                <p className="text-muted-foreground">Ventas y cobros de la tanda #{batch.number}</p>
               </div>
             </div>
             <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-              batch.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+              batch.status === 'ACTIVE' ? 'bg-accent/20 text-accent' : 'bg-muted text-muted-foreground'
             }`}>
-              {batch.status === 'ACTIVE' ? 'Activa' : 'Cerrada'}
+              {batch.status === 'ACTIVE' ? '✅ Activa' : '❌ Cerrada'}
             </div>
           </div>
         </div>
@@ -187,10 +187,10 @@ function BatchSalesContent() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <Package className="h-8 w-8 text-blue-600" />
+                <Package className="h-8 w-8 text-primary" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Libras Vendidas</p>
-                  <p className="text-2xl font-bold text-gray-900">{totalPounds}</p>
+                  <p className="text-sm font-medium text-muted-foreground">⚖️ Libras Vendidas</p>
+                  <p className="text-2xl font-bold text-foreground">{totalPounds}</p>
                 </div>
               </div>
             </CardContent>
@@ -199,10 +199,10 @@ function BatchSalesContent() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <DollarSign className="h-8 w-8 text-green-600" />
+                <DollarSign className="h-8 w-8 text-accent" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Vendido</p>
-                  <p className="text-2xl font-bold text-gray-900">${totalAmount.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-muted-foreground">💰 Total Vendido</p>
+                  <p className="text-2xl font-bold text-foreground">${totalAmount.toLocaleString()}</p>
                 </div>
               </div>
             </CardContent>
@@ -211,10 +211,10 @@ function BatchSalesContent() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <CheckCircle className="h-8 w-8 text-green-600" />
+                <CheckCircle className="h-8 w-8 text-accent" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Pagado</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-sm font-medium text-muted-foreground">✅ Pagado</p>
+                  <p className="text-2xl font-bold text-accent">
                     ${(paidSales.reduce((sum, sale) => sum + sale.totalAmount, 0) + totalCollected).toLocaleString()}
                   </p>
                 </div>
@@ -225,10 +225,10 @@ function BatchSalesContent() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <AlertCircle className="h-8 w-8 text-red-600" />
+                <AlertCircle className="h-8 w-8 text-destructive" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Por Cobrar</p>
-                  <p className="text-2xl font-bold text-red-600">${totalDebt.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-muted-foreground">💰 Por Cobrar</p>
+                  <p className="text-2xl font-bold text-destructive">${totalDebt.toLocaleString()}</p>
                 </div>
               </div>
             </CardContent>
@@ -241,25 +241,25 @@ function BatchSalesContent() {
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-foreground">
                   <Users className="w-5 h-5 mr-2" />
-                  Dinero por Usuario
+                  👥 Dinero por Usuario
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {usersWithMoney.size === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    No hay dinero registrado
+                  <div className="text-center py-8 text-muted-foreground">
+                    ℹ️ No hay dinero registrado
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {Array.from(usersWithMoney.entries()).map(([userId, user]) => (
-                      <div key={userId} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div key={userId} className="flex justify-between items-center p-3 bg-primary/10 rounded-lg border border-primary/20">
                         <div>
-                          <div className="font-medium">{user.name}</div>
+                          <div className="font-medium text-foreground">{user.name}</div>
                         </div>
                         <div className="text-right">
-                          <div className="text-lg font-bold text-green-600">
+                          <div className="text-lg font-bold text-primary">
                             ${user.amount.toLocaleString()}
                           </div>
                         </div>
@@ -273,15 +273,15 @@ function BatchSalesContent() {
             {/* Debtors Summary */}
             <Card className="mt-6">
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-foreground">
                   <Clock className="w-5 h-5 mr-2" />
-                  Clientes que Deben
+                  ⏳ Clientes que Deben
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {creditSales.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    No hay ventas a crédito
+                  <div className="text-center py-8 text-muted-foreground">
+                    ℹ️ No hay ventas a crédito
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -296,15 +296,15 @@ function BatchSalesContent() {
                       if (currentDebt <= 0) return null
                       
                       return (
-                        <div key={customerId} className="flex justify-between items-center p-3 bg-red-50 rounded-lg border border-red-200">
+                        <div key={customerId} className="flex justify-between items-center p-3 bg-destructive/10 rounded-lg border border-destructive/20">
                           <div>
-                            <div className="font-medium">{customer.name}</div>
-                            <div className="text-sm text-gray-600">
+                            <div className="font-medium text-foreground">{customer.name}</div>
+                            <div className="text-sm text-muted-foreground">
                               {customerSales.length} venta{customerSales.length > 1 ? 's' : ''}
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-lg font-bold text-red-600">
+                            <div className="text-lg font-bold text-destructive">
                               ${currentDebt.toLocaleString()}
                             </div>
                           </div>
@@ -377,26 +377,26 @@ function BatchSalesContent() {
             {collections.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Cobros ({collections.length})</CardTitle>
+                  <CardTitle className="text-foreground">💳 Cobros ({collections.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {collections.map((collection) => (
-                      <div key={collection.id} className="border rounded-lg p-4 bg-green-50">
+                      <div key={collection.id} className="border-2 border-accent/30 rounded-lg p-4 bg-accent/5">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center mb-2">
-                              <span className="font-semibold mr-2">{collection.customer.name}</span>
-                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              <span className="font-semibold mr-2 text-foreground">✅ {collection.customer.name}</span>
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-accent/20 text-accent">
                                 Cobro - {collection.paymentMethod}
                               </span>
                             </div>
                             
-                            <div className="text-sm text-gray-600 space-y-1">
+                            <div className="text-sm text-muted-foreground space-y-1">
                               <div>{new Date(collection.collectionDate).toLocaleDateString()}</div>
-                              <div>Cobrado por: {collection.user.name}</div>
+                              <div>💼 Cobrado por: {collection.user.name}</div>
                               {collection.notes && (
-                                <div>Nota: {collection.notes}</div>
+                                <div>📝 Nota: {collection.notes}</div>
                               )}
                             </div>
                           </div>

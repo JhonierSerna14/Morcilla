@@ -136,50 +136,50 @@ export default function CashPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground text-base">Cargando...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">Transferencias</h1>
-          <p className="text-gray-600">Transfiere dinero entre usuarios del sistema</p>
+    <div className="min-h-screen bg-background pb-32 lg:pb-12">
+      <div className="bg-card shadow-sm border-b-2 border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <h1 className="text-3xl font-bold text-foreground">💸 Transferencias</h1>
+          <p className="text-muted-foreground text-base mt-1">Transfiere dinero entre usuarios del sistema</p>
         </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card>
+        <Card className="shadow-md">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <ArrowUpDown className="w-5 h-5 mr-2" />
-              Transferir Dinero a Otro Usuario
+            <CardTitle className="flex items-center text-xl">
+              <ArrowUpDown className="w-6 h-6 mr-3 text-primary" />
+              Transferir Dinero
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-base">
               Registra cuando entregas dinero a otro vendedor o cobrador
             </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Balance Display */}
             {balance && (
-              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-800 mb-2">Mi Saldo Actual</h3>
+              <div className="mb-6 p-5 bg-primary/10 border-2 border-primary/30 rounded-lg">
+                <h3 className="text-base font-semibold text-foreground mb-3">💰 Mi Saldo Actual</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <p className="text-xs text-blue-600">Efectivo</p>
-                    <p className="text-lg font-bold text-blue-800">
+                  <div className="text-center bg-background/50 p-4 rounded-lg border border-border">
+                    <p className="text-sm text-muted-foreground mb-1">💵 Efectivo</p>
+                    <p className="text-2xl font-bold text-primary">
                       {formatCurrency(balance.totalCash)}
                     </p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-xs text-blue-600">Nequi</p>
-                    <p className="text-lg font-bold text-blue-800">
+                  <div className="text-center bg-background/50 p-4 rounded-lg border border-border">
+                    <p className="text-sm text-muted-foreground mb-1">📱 Nequi</p>
+                    <p className="text-2xl font-bold text-primary">
                       {formatCurrency(balance.totalNequi)}
                     </p>
                   </div>
@@ -190,11 +190,11 @@ export default function CashPage() {
             <form onSubmit={handleTransferSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Usuario destino *</label>
+                  <label className="block text-base font-semibold text-foreground mb-2">👤 Usuario destino *</label>
                   <select
                     value={transferForm.toUserId}
                     onChange={(e) => setTransferForm({ ...transferForm, toUserId: e.target.value })}
-                    className="w-full h-12 px-3 border border-gray-300 rounded-md"
+                    className="w-full h-12 px-4 border-2 border-border rounded-lg bg-background text-foreground text-base focus:outline-none focus:ring-3 focus:ring-primary/50 focus:border-primary"
                     required
                   >
                     <option value="">Seleccionar usuario...</option>
@@ -205,9 +205,9 @@ export default function CashPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Monto *</label>
+                  <label className="block text-base font-semibold text-foreground mb-2">💰 Monto *</label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       type="number"
                       step="1000"
@@ -215,7 +215,7 @@ export default function CashPage() {
                       placeholder="50000"
                       value={transferForm.amount}
                       onChange={(e) => setTransferForm({ ...transferForm, amount: e.target.value })}
-                      className="pl-10 h-12"
+                      className="pl-12 text-base"
                       required
                     />
                   </div>
@@ -224,43 +224,43 @@ export default function CashPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Tipo de dinero *</label>
+                  <label className="block text-base font-semibold text-foreground mb-2">💵 Tipo de dinero *</label>
                   <select
                     value={transferForm.paymentMethod}
                     onChange={(e) => setTransferForm({ ...transferForm, paymentMethod: e.target.value })}
-                    className="w-full h-12 px-3 border border-gray-300 rounded-md"
+                    className="w-full h-12 px-4 border-2 border-border rounded-lg bg-background text-foreground text-base focus:outline-none focus:ring-3 focus:ring-primary/50 focus:border-primary"
                     required
                   >
-                    <option value="EFECTIVO">Efectivo</option>
-                    <option value="NEQUI">Nequi</option>
+                    <option value="EFECTIVO">💵 Efectivo</option>
+                    <option value="NEQUI">📱 Nequi</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Concepto *</label>
+                  <label className="block text-base font-semibold text-foreground mb-2">📝 Concepto *</label>
                   <Input
-                    placeholder="Ej: Entrega de cobros del día"
+                    placeholder="Ej: Entrega de cobros"
                     value={transferForm.concept}
                     onChange={(e) => setTransferForm({ ...transferForm, concept: e.target.value })}
-                    className="h-12"
+                    className="text-base"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Notas adicionales</label>
+                <label className="block text-base font-semibold text-foreground mb-2">📌 Notas adicionales</label>
                 <Input
                   placeholder="Información adicional (opcional)"
                   value={transferForm.notes}
                   onChange={(e) => setTransferForm({ ...transferForm, notes: e.target.value })}
-                  className="h-12"
+                  className="text-base"
                 />
               </div>
 
-              <div className="flex justify-end">
-                <Button type="submit" disabled={saving} size="lg">
-                  {saving ? "Registrando..." : "Transferir Dinero"}
+              <div className="flex justify-end pt-4">
+                <Button type="submit" disabled={saving} size="lg" className="text-base">
+                  {saving ? "Registrando..." : "💾 Transferir Dinero"}
                 </Button>
               </div>
             </form>
