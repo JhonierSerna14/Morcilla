@@ -32,7 +32,7 @@ interface CashBalance {
 
 interface RecentTransaction {
   id: string;
-  type: 'sale' | 'collection' | 'transfer_sent' | 'transfer_received';
+  type: 'sale' | 'collection' | 'transfer_sent' | 'transfer_received' | 'cash_movement_income' | 'cash_movement_expense';
   amount: number;
   method: 'EFECTIVO' | 'NEQUI';
   date: string;
@@ -66,10 +66,10 @@ export default function MiCaja() {
 
   const fetchRecentTransactions = async () => {
     try {
-      const response = await fetch('/api/cash/transactions');
+      const response = await fetch('/api/cash/movements');
       if (response.ok) {
         const data = await response.json();
-        setRecentTransactions(data.slice(0, 10)); // Últimas 10 transacciones
+        setRecentTransactions((data.movements || []).slice(0, 10)); // Últimas 10 transacciones
       }
     } catch (error) {
       console.error('Error al cargar transacciones:', error);
@@ -100,8 +100,10 @@ export default function MiCaja() {
       case 'sale':
       case 'collection':
       case 'transfer_received':
+      case 'cash_movement_income':
         return <ArrowUpIcon className="h-4 w-4 text-green-600" />;
       case 'transfer_sent':
+      case 'cash_movement_expense':
         return <ArrowDownIcon className="h-4 w-4 text-red-600" />;
       default:
         return <DollarSignIcon className="h-4 w-4 text-gray-600" />;
@@ -113,8 +115,10 @@ export default function MiCaja() {
       case 'sale':
       case 'collection':
       case 'transfer_received':
+      case 'cash_movement_income':
         return 'text-green-600';
       case 'transfer_sent':
+      case 'cash_movement_expense':
         return 'text-red-600';
       default:
         return 'text-gray-600';
@@ -244,9 +248,9 @@ export default function MiCaja() {
                       </div>
                     </div>
                   </div>
-                  <div className={`font-bold ${getTransactionColor(transaction.type)}`}>
-                    {transaction.type === 'transfer_sent' ? '-' : '+'}
-                    {formatCurrency(transaction.amount)}
+                    <div className={`font-bold ${getTransactionColor(transaction.type)}`}>
+                    {transaction.amount < 0 ? '-' : '+'}
+                    {formatCurrency(Math.abs(transaction.amount))}
                   </div>
                 </div>
               ))}

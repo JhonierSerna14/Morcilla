@@ -276,13 +276,21 @@ export default function SalesPage() {
                       value={searchCustomer}
                       onChange={(e) => setSearchCustomer(e.target.value)}
                       className="pl-12 text-base"
+                      aria-label="Buscar cliente por nombre o teléfono"
+                      aria-expanded={filteredCustomers.length > 0}
                     />
                     {filteredCustomers.length > 0 && (
-                      <div className="absolute z-10 w-full mt-1 bg-card border-2 border-border rounded-lg shadow-lg max-h-60 overflow-auto">
+                      <div
+                        role="listbox"
+                        aria-label="Resultados de búsqueda de clientes"
+                        className="w-full mt-2 border-2 border-border rounded-lg bg-background shadow-sm max-h-60 overflow-auto"
+                      >
                         {filteredCustomers.map((customer) => (
                           <button
                             key={customer.id}
                             type="button"
+                            role="option"
+                            aria-selected={selectedCustomer?.id === customer.id}
                             className="w-full text-left px-5 py-4 hover:bg-muted border-b border-border last:border-b-0 transition-colors"
                             onClick={() => {
                               setSelectedCustomer(customer)

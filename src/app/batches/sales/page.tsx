@@ -164,7 +164,7 @@ function BatchSalesContent() {
                 className="mr-4"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                ← Volver
+                 Volver
               </Button>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">📋 {batch.name}</h1>

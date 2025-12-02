@@ -14,9 +14,9 @@ export async function GET() {
 
     // Obtener todas las transacciones del usuario
     const [sales, collections, transfersSent, transfersReceived, cashMovements] = await Promise.all([
-      // Ventas del usuario
+      // Ventas del usuario (solo ventas pagadas)
       prisma.sale.aggregate({
-        where: { userId },
+        where: { userId, paymentStatus: 'PAID' },
         _sum: {
           totalAmount: true
         }
@@ -46,21 +46,21 @@ export async function GET() {
         }
       }),
       
-      // Movimientos de caja (gastos)
-      prisma.cashMovement.aggregate({
-        where: { userId },
-        _sum: {
-          amount: true
-        }
-      })
+      // Movimientos de caja (separamos ingresos y egresos)
+        prisma.cashMovement.aggregate({
+          where: { userId },
+          _sum: {
+            amount: true
+          }
+        })
     ]);
 
     // Calcular por método de pago
-    const [salesByMethod, collectionsByMethod, transfersSentByMethod, transfersReceivedByMethod, cashMovementsByMethod] = await Promise.all([
-      // Ventas por método
+    const [salesByMethod, collectionsByMethod, transfersSentByMethod, transfersReceivedByMethod, cashMovementsIncomeByMethod, cashMovementsExpenseByMethod] = await Promise.all([
+      // Ventas por método (solo ventas pagadas)
       prisma.sale.groupBy({
         by: ['paymentMethod'],
-        where: { userId },
+        where: { userId, paymentStatus: 'PAID' },
         _sum: {
           totalAmount: true
         }
@@ -93,13 +93,17 @@ export async function GET() {
         }
       }),
       
-      // Movimientos de caja por método
+      // Movimientos de caja ingresos por método
       prisma.cashMovement.groupBy({
         by: ['paymentMethod'],
-        where: { userId },
-        _sum: {
-          amount: true
-        }
+        where: { userId, movementType: 'INCOME' },
+        _sum: { amount: true }
+      }),
+      // Movimientos de caja egresos por método
+      prisma.cashMovement.groupBy({
+        by: ['paymentMethod'],
+        where: { userId, movementType: 'EXPENSE' },
+        _sum: { amount: true }
       })
     ]);
 
@@ -116,12 +120,16 @@ export async function GET() {
     const transfersReceivedCash = transfersReceivedByMethod.find((t: any) => t.paymentMethod === 'EFECTIVO')?._sum.amount || 0;
     const transfersReceivedNequi = transfersReceivedByMethod.find((t: any) => t.paymentMethod === 'NEQUI')?._sum.amount || 0;
 
-    const cashMovementsCash = cashMovementsByMethod.find((m: any) => m.paymentMethod === 'EFECTIVO')?._sum.amount || 0;
-    const cashMovementsNequi = cashMovementsByMethod.find((m: any) => m.paymentMethod === 'NEQUI')?._sum.amount || 0;
+    const cashMovementsIncomeCash = cashMovementsIncomeByMethod.find((m: any) => m.paymentMethod === 'EFECTIVO')?._sum.amount || 0;
+    const cashMovementsIncomeNequi = cashMovementsIncomeByMethod.find((m: any) => m.paymentMethod === 'NEQUI')?._sum.amount || 0;
+
+    const cashMovementsExpenseCash = cashMovementsExpenseByMethod.find((m: any) => m.paymentMethod === 'EFECTIVO')?._sum.amount || 0;
+    const cashMovementsExpenseNequi = cashMovementsExpenseByMethod.find((m: any) => m.paymentMethod === 'NEQUI')?._sum.amount || 0;
 
     // Calcular totales (descontar gastos)
-    const totalCash = salesCash + collectionsCash - transfersSentCash + transfersReceivedCash - cashMovementsCash;
-    const totalNequi = salesNequi + collectionsNequi - transfersSentNequi + transfersReceivedNequi - cashMovementsNequi;
+    // Sumamos ingresos y restamos egresos, teniendo en cuenta ventas, cobros y transferencias
+    const totalCash = salesCash + collectionsCash - transfersSentCash + transfersReceivedCash + cashMovementsIncomeCash - cashMovementsExpenseCash;
+    const totalNequi = salesNequi + collectionsNequi - transfersSentNequi + transfersReceivedNequi + cashMovementsIncomeNequi - cashMovementsExpenseNequi;
     const grandTotal = totalCash + totalNequi;
 
     const response = {
@@ -144,8 +152,8 @@ export async function GET() {
         nequi: transfersReceivedNequi
       },
       cashMovements: {
-        cash: cashMovementsCash,
-        nequi: cashMovementsNequi
+        cash: (cashMovementsIncomeCash - cashMovementsExpenseCash),
+        nequi: (cashMovementsIncomeNequi - cashMovementsExpenseNequi)
       },
       totalCash,
       totalNequi,

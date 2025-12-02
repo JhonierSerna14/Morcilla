@@ -75,6 +75,13 @@ export async function GET(request: Request) {
       }
     })
 
+    // Obtener movimientos de caja (egresos/ingresos manuales)
+    const cashMovements = await prisma.cashMovement.findMany({
+      where: { userId: session.user.id },
+      orderBy: { movementDate: 'desc' },
+      take: limit
+    })
+
     // Formatear movimientos
     const movements = [
       ...sales.map(sale => ({
@@ -114,6 +121,15 @@ export async function GET(request: Request) {
         date: transfer.transferDate,
         description: `Transferencia recibida de ${transfer.fromUser?.name}`,
         concept: transfer.concept
+      }))
+      ,
+      ...cashMovements.map(m => ({
+        id: m.id,
+        type: m.movementType === 'EXPENSE' ? 'MOVEMENT_EXPENSE' as const : 'MOVEMENT_INCOME' as const,
+        amount: m.movementType === 'EXPENSE' ? -m.amount : m.amount,
+        paymentMethod: m.paymentMethod,
+        date: m.movementDate,
+        description: m.description
       }))
     ]
 

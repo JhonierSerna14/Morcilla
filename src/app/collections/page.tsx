@@ -250,12 +250,14 @@ export default function CollectionsPage() {
                   value={searchCustomer}
                   onChange={(e) => setSearchCustomer(e.target.value)}
                   className="pl-10 text-base"
+                  aria-label="Buscar cliente por nombre o teléfono"
+                  aria-expanded={filteredCustomers.length > 0}
                 />
               </div>
               
               {/* Lista de clientes filtrados */}
               {filteredCustomers.length > 0 && (
-                <div className="border-2 border-border rounded-lg bg-background max-h-40 overflow-y-auto">
+                <div role="listbox" aria-label="Resultados de búsqueda de clientes" className="border-2 border-border rounded-lg bg-background max-h-40 overflow-y-auto">
                   {filteredCustomers.map((customer) => (
                     <button
                       key={customer.id}
@@ -264,6 +266,8 @@ export default function CollectionsPage() {
                         setSearchCustomer(customer.name)
                         setFilteredCustomers([])
                       }}
+                      role="option"
+                      aria-selected={selectedCustomer?.id === customer.id}
                       className="w-full text-left px-4 py-3 hover:bg-primary/5 border-b border-border last:border-b-0 transition"
                     >
                       <div className="flex justify-between items-center">

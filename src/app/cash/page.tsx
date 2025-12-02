@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowUpDown, DollarSign, Wallet } from "lucide-react"
+import { ArrowUpDown, DollarSign } from "lucide-react"
 import { formatCurrency } from "@/lib/batch-utils"
 
 interface User {
@@ -27,6 +27,7 @@ export default function CashPage() {
   const [balance, setBalance] = useState<UserBalance | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [movements, setMovements] = useState<any[]>([])
 
   const [transferForm, setTransferForm] = useState({
     toUserId: "",
@@ -37,7 +38,7 @@ export default function CashPage() {
   })
 
   useEffect(() => {
-    Promise.all([fetchUsers(), fetchBalance()]).finally(() => setLoading(false))
+    Promise.all([fetchUsers(), fetchBalance(), fetchMovements()]).finally(() => setLoading(false))
   }, [])
 
   const fetchUsers = async () => {
@@ -65,6 +66,18 @@ export default function CashPage() {
       }
     } catch (error) {
       console.error("Error fetching balance:", error)
+    }
+  }
+
+  const fetchMovements = async () => {
+    try {
+      const response = await fetch('/api/cash/movements')
+      if (response.ok) {
+        const data = await response.json()
+        setMovements(data.movements || [])
+      }
+    } catch (error) {
+      console.error('Error fetching movements:', error)
     }
   }
 
@@ -149,8 +162,8 @@ export default function CashPage() {
     <div className="min-h-screen bg-background pb-32 lg:pb-12">
       <div className="bg-card shadow-sm border-b-2 border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-          <h1 className="text-3xl font-bold text-foreground">💸 Transferencias</h1>
-          <p className="text-muted-foreground text-base mt-1">Transfiere dinero entre usuarios del sistema</p>
+          <h1 className="text-3xl font-bold text-foreground">📜 Movimientos</h1>
+          <p className="text-muted-foreground text-base mt-1">Ver movimientos, transferencias, cobros y gastos</p>
         </div>
       </div>
 
@@ -266,6 +279,45 @@ export default function CashPage() {
             </form>
           </CardContent>
         </Card>
+        
+        {/* Movimientos */}
+        <div className="mt-8">
+          <Card className="shadow-md">
+            <CardHeader>
+              <CardTitle className="text-xl">📜 Movimientos</CardTitle>
+              <CardDescription>Ventas, cobros, transferencias y movimientos manuales</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {movements.length === 0 ? (
+                <p className="text-muted-foreground">No hay movimientos</p>
+              ) : (
+                <div className="space-y-3">
+                  {movements.map((m) => (
+                      <div key={m.id} className="flex justify-between items-center p-3 bg-primary/5 rounded-lg border border-primary/10">
+                        <div className="flex items-center gap-3">
+                          <div className="text-2xl">
+                            {m.type === 'SALE' && '📝'}
+                            {m.type === 'COLLECTION' && '💸'}
+                            {m.type === 'TRANSFER_SENT' && '↘️'}
+                            {m.type === 'TRANSFER_RECEIVED' && '↗️'}
+                            {m.type === 'MOVEMENT_EXPENSE' && '➖'}
+                            {m.type === 'MOVEMENT_INCOME' && '➕'}
+                          </div>
+                          <div>
+                            <div className="font-medium">{m.description}</div>
+                            <div className="text-sm text-muted-foreground">{new Date(m.date).toLocaleString()}</div>
+                          </div>
+                        </div>
+                        <div className={`font-bold ${m.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {m.amount < 0 ? '-' : '+'}{formatCurrency(Math.abs(m.amount))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

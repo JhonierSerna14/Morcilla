@@ -12,8 +12,10 @@ export async function GET() {
 
     const userId = session.user.id;
 
-    // Obtener transacciones recientes
-    const [sales, collections, transfersSent, transfersReceived] = await Promise.all([
+    // Obtener transacciones recientes (incluye movimientos manuales de caja)
+    const [cashMovements, sales, collections, transfersSent, transfersReceived] = await Promise.all([
+      // Movimientos manuales de caja (ingresos/egresos)
+      prisma.cashMovement.findMany({ where: { userId }, orderBy: { movementDate: 'desc' }, take: 20 }),
       // Ventas del usuario
       prisma.sale.findMany({
         where: { userId },
@@ -97,6 +99,16 @@ export async function GET() {
         method: transfer.paymentMethod,
         date: transfer.transferDate.toISOString(),
         description: `Recibo de ${transfer.fromUser.name}: ${transfer.concept}`
+      })),
+
+      // Movimientos manuales de caja
+      ...cashMovements.map(m => ({
+        id: m.id,
+        type: m.movementType === 'EXPENSE' ? 'cash_movement_expense' as const : 'cash_movement_income' as const,
+        amount: m.movementType === 'EXPENSE' ? -m.amount : m.amount,
+        method: m.paymentMethod,
+        date: m.movementDate.toISOString(),
+        description: m.description
       }))
     ];
 

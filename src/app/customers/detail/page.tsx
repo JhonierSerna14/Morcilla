@@ -110,7 +110,7 @@ function CustomerDetailContent() {
           <p className="text-muted-foreground mb-4">No se pudo encontrar la información del cliente.</p>
           <Button onClick={() => router.back()} className="text-base h-12">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            ← Volver
+             Volver
           </Button>
         </div>
       </div>
@@ -130,7 +130,7 @@ function CustomerDetailContent() {
                 className="mr-4"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                ← Volver
+                 Volver
               </Button>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">👤 {customer.name}</h1>

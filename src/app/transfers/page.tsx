@@ -1,42 +1,16 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeftRight, Users, CheckCircle, AlertCircle, DollarSign } from "lucide-react"
-import { useSession } from "next-auth/react"
+import { useEffect } from "react"
+import { useRouter } from 'next/navigation'
 
-interface User {
-  id: string
-  name: string
-  role: string
-}
-
-interface Transfer {
-  id: string
-  amount: number
-  paymentMethod: string
-  concept: string
-  transferDate: string
-  notes?: string
-  fromUser: {
-    id: string
-    name: string
-  }
-  toUser: {
-    id: string
-    name: string
-  }
-}
+// Transfer page now redirects to /cash
 
 export default function TransfersPage() {
-  const { data: session } = useSession()
-  const [users, setUsers] = useState<User[]>([])
-  const [transfers, setTransfers] = useState<Transfer[]>([])
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [success, setSuccess] = useState(false)
+  // Esta página fue consolidada en /cash (Movimientos).
+  // Para evitar duplicar interfaces, redirigimos al usuario a /cash.
+  const router = useRouter()
+  useEffect(() => { router.replace('/cash') }, [router])
+  return null
 
   // Form states
   const [transferForm, setTransferForm] = useState({
