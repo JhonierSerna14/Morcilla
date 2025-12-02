@@ -139,30 +139,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Large Mode: Improve readability and touch targets for older adults */
-.large-mode {
-  font-size: 1.25rem !important;
-  letter-spacing: 0.4px;
-}
-
-.large-mode .interactive-large {
-  min-height: 4.25rem;
-  min-width: 4.25rem;
-  padding: 1rem 1.5rem;
-  border-radius: 1rem;
-  font-size: 1.25rem;
-}
-
-.large-mode .text-2xl { font-size: 1.75rem; }
-.large-mode .text-3xl { font-size: 2.25rem; }
-.large-mode .text-4xl { font-size: 2.75rem; }
-
-.large-mode .min-w-\[88px\] { min-width: 110px; }
-.large-mode .w-14 { width: 72px; height: 72px; }
-.large-mode .w-5 { width: 28px; height: 28px; }
-.large-mode .w-6 { width: 32px; height: 32px; }
-
-.large-mode .grid-cols-2 > * { padding: 1rem; }
+/* Large Mode removed */
 
 .interactive-large:active {
   transform: scale(0.98);

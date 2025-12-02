@@ -19,7 +19,6 @@ import {
   UserPlus
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { AccessibilityToggle } from "@/components/ui/accessibility-toggle"
 import { signOut } from "next-auth/react"
 
 interface NavItem {
@@ -157,9 +156,6 @@ export default function MobileNavigation() {
         </div>
 
         <div className="mt-4 pt-4 border-t border-border flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <AccessibilityToggle />
-          </div>
           <Button
             variant="destructive"
             className="w-full h-10 justify-start"
@@ -208,7 +204,6 @@ export function DesktopNavigation() {
               })}
 
               <div className="ml-4 border-l border-border pl-4 flex items-center space-x-2">
-                <AccessibilityToggle />
                 <Button
                   variant="destructive"
                   size="sm"
