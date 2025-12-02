@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react"
 import { usePathname } from "next/navigation"
 import MobileNavigation, { DesktopNavigation } from "@/components/navigation"
+import { ActiveBatchBanner } from "@/components/active-batch-banner"
 
 const publicPaths = ["/", "/login", "/register"]
 
@@ -15,6 +16,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   return (
     <div className="min-h-screen bg-background">
+      <ActiveBatchBanner />
       {shouldShowNavigation && <DesktopNavigation />}
       
       <main className={shouldShowNavigation ? "pb-20 lg:pb-0" : ""}>

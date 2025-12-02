@@ -3,21 +3,23 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { 
-  LayoutDashboard, 
-  ShoppingCart, 
-  Users, 
-  Wallet, 
-  TrendingUp, 
-  ClipboardList, 
-  ArrowLeftRight, 
-  DollarSign, 
+import { useState } from "react"
+import {
+  LayoutDashboard,
+  ShoppingCart,
+  Users,
+  Wallet,
+  TrendingUp,
+  ClipboardList,
+  ArrowLeftRight,
+  DollarSign,
   FileText,
   Scale,
   LogOut,
   UserPlus
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { AccessibilityToggle } from "@/components/ui/accessibility-toggle"
 import { signOut } from "next-auth/react"
 
 interface NavItem {
@@ -47,17 +49,12 @@ const baseNavItems: NavItem[] = [
     description: "Gestionar clientes"
   },
   {
-    name: "Mi Caja",
-    href: "/cash/balance",
-    icon: Wallet,
-    description: "Mi dinero"
-  },
-  {
-    name: "Transferencias",
+    name: "Movimientos",
     href: "/cash",
-    icon: ArrowLeftRight,
-    description: "Entre usuarios"
+    icon: Wallet,
+    description: "Ver movimientos y transferencias"
   },
+  // Transferencias están integradas en Movimientos (un solo apartado)
   {
     name: "Gastos",
     href: "/expenses",
@@ -90,6 +87,7 @@ const adminNavItems: NavItem[] = [
 export default function MobileNavigation() {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const [expanded, setExpanded] = useState(false)
 
   // Combinar elementos de navegación base con los de admin si es necesario
   const navItems = [...baseNavItems, ...(session?.user?.role === "ADMIN" ? adminNavItems : [])]
@@ -101,32 +99,30 @@ export default function MobileNavigation() {
         {navItems.slice(0, 4).map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
-          
+
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex-shrink-0 px-3 py-2 mx-1 rounded-lg text-center min-w-[70px] transition-all duration-200 ${
-                isActive
-                  ? "bg-primary text-primary-foreground shadow-md font-semibold"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
+              className={`flex-shrink-0 px-3 py-2 mx-1 rounded-lg text-center min-w-[88px] transition-all duration-200 interactive-large ${isActive
+                ? "bg-primary text-primary-foreground shadow-md font-semibold"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              aria-label={`Ir a ${item.name}`}
             >
               <Icon className="w-6 h-6 mx-auto mb-1" />
-              <div className="text-xs font-medium">{item.name}</div>
+              <div className="text-sm font-medium">{item.name}</div>
             </Link>
           )
         })}
-        
+
         {/* Botón de menú expandido */}
         <button
-          className="flex-shrink-0 px-3 py-2 mx-1 rounded-lg text-center min-w-[70px] text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200"
-          onClick={() => {
-            const menu = document.getElementById('expanded-menu')
-            if (menu) {
-              menu.classList.toggle('hidden')
-            }
-          }}
+          className="flex-shrink-0 px-3 py-2 mx-1 rounded-lg text-center min-w-[88px] text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 interactive-large"
+          aria-expanded={expanded}
+          aria-controls="expanded-menu"
+          aria-label={expanded ? 'Cerrar más opciones' : 'Abrir más opciones'}
+          onClick={() => setExpanded((v) => !v)}
         >
           <ClipboardList className="w-6 h-6 mx-auto mb-1" />
           <div className="text-xs font-medium">Más</div>
@@ -134,21 +130,21 @@ export default function MobileNavigation() {
       </div>
 
       {/* Menú expandido */}
-      <div id="expanded-menu" className="hidden bg-card border-t border-border px-4 py-4 max-h-64 overflow-y-auto">
+      <div id="expanded-menu" className={`${expanded ? '' : 'hidden'} bg-card border-t border-border px-4 py-4 max-h-64 overflow-y-auto`}>
         <div className="grid grid-cols-2 gap-3">
           {navItems.slice(4).map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
-            
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center p-3 rounded-lg transition-all duration-200 ${
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-md font-semibold"
-                    : "bg-muted text-foreground hover:bg-accent hover:text-accent-foreground"
-                }`}
+                className={`flex items-center p-3 rounded-lg transition-all duration-200 interactive-large ${isActive
+                  ? "bg-primary text-primary-foreground shadow-md font-semibold"
+                  : "bg-muted text-foreground hover:bg-accent hover:text-accent-foreground"
+                  }`}
+                aria-label={`Ir a ${item.name}`}
               >
                 <Icon className="w-5 h-5 mr-3" />
                 <div>
@@ -159,8 +155,11 @@ export default function MobileNavigation() {
             )
           })}
         </div>
-        
+
         <div className="mt-4 pt-4 border-t border-border flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <AccessibilityToggle />
+          </div>
           <Button
             variant="destructive"
             className="w-full h-10 justify-start"
@@ -188,34 +187,28 @@ export function DesktopNavigation() {
       <nav className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center">
-              <Link href="/dashboard" className="text-2xl font-bold text-foreground">
-                Gestión Morcilla
-              </Link>
-            </div>
-            
             <div className="flex items-center space-x-1">
               {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = pathname === item.href
-                
+
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center px-4 py-2 rounded-lg text-base font-medium transition-all duration-200 ${
-                      isActive
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : "text-foreground hover:bg-muted"
-                    }`}
+                    className={`flex items-center px-4 py-2 rounded-lg text-base font-medium transition-all duration-200 ${isActive
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-foreground hover:bg-muted"
+                      }`}
                   >
                     <Icon className="w-5 h-5 mr-2" />
                     {item.name}
                   </Link>
                 )
               })}
-              
+
               <div className="ml-4 border-l border-border pl-4 flex items-center space-x-2">
+                <AccessibilityToggle />
                 <Button
                   variant="destructive"
                   size="sm"

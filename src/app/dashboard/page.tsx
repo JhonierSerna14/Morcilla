@@ -4,7 +4,8 @@ import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Scale, DollarSign, Clock, Users, LogOut, Eye, UserCheck, AlertCircle } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Plus, Scale, DollarSign, Clock, Users, LogOut, Eye, UserCheck, AlertCircle, CreditCard } from "lucide-react"
 import Link from "next/link"
 import { signOut } from "next-auth/react"
 import { formatBatchName, formatDateForDisplay, formatCurrency } from "@/lib/batch-utils"
@@ -49,6 +50,9 @@ export default function DashboardPage() {
   const [activeBatch, setActiveBatch] = useState<ActiveBatch | null>(null)
   const [metrics, setMetrics] = useState<BatchMetrics | null>(null)
   const [batchDetails, setBatchDetails] = useState<BatchDetails | null>(null)
+  const [payingCustomer, setPayingCustomer] = useState<{ id: string, name: string } | null>(null)
+  const [paymentForm, setPaymentForm] = useState({ amount: 0, paymentMethod: 'EFECTIVO', notes: '' })
+  const [paymentLoading, setPaymentLoading] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -89,6 +93,36 @@ export default function DashboardPage() {
     }
   }
 
+  const cancelPayment = () => {
+    setPayingCustomer(null)
+    setPaymentForm({ amount: 0, paymentMethod: 'EFECTIVO', notes: '' })
+  }
+
+  const submitPayment = async () => {
+    if (!payingCustomer) return
+    setPaymentLoading(true)
+    try {
+      const response = await fetch('/api/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerId: payingCustomer.id, amount: paymentForm.amount, paymentMethod: paymentForm.paymentMethod, notes: paymentForm.notes, batchId: activeBatch?.id })
+      })
+      if (response.ok) {
+        alert('✅ Cobro registrado correctamente')
+        setPayingCustomer(null)
+        fetchActiveBatch()
+      } else {
+        const error = await response.json()
+        alert(`❌ Error: ${error.error || 'No se pudo registrar el cobro'}`)
+      }
+    } catch (error) {
+      console.error('Error al registrar cobro:', error)
+      alert('❌ Error al registrar el cobro')
+    } finally {
+      setPaymentLoading(false)
+    }
+  }
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -126,14 +160,7 @@ export default function DashboardPage() {
                 Bienvenido, {session?.user?.name}
               </p>
             </div>
-            <div className="flex space-x-4">
-              <Link href="/sales">
-                <Button size="lg">
-                  <Plus className="w-5 h-5 mr-2" />
-                  Nueva Venta
-                </Button>
-              </Link>
-            </div>
+            
           </div>
         </div>
       </div>
@@ -146,10 +173,10 @@ export default function DashboardPage() {
               <h2 className="text-2xl font-bold text-foreground">Tanda Activa</h2>
               <p className="text-base text-muted-foreground mt-1">Seguimiento en tiempo real</p>
             </div>
-            <Button 
-              onClick={createNewBatch} 
-              variant="secondary" 
-              size="lg"
+            <Button
+              onClick={createNewBatch}
+              variant="secondary"
+              size="xl"
               className="w-full sm:w-auto"
             >
               <Plus className="w-5 h-5 mr-2" />
@@ -274,15 +301,29 @@ export default function DashboardPage() {
                     <div className="space-y-3">
                       {batchDetails.recentDebtors.map((debtor) => (
                         <div key={debtor.customerId} className="flex justify-between items-center p-4 bg-secondary/20 border-2 border-secondary/40 rounded-lg hover:shadow-md transition-shadow">
-                          <div>
-                            <div className="font-semibold text-foreground text-base">{debtor.customerName}</div>
-                            <div className="text-base text-muted-foreground mt-1">
-                              📅 Última venta: {new Date(debtor.lastSaleDate).toLocaleDateString('es-CO')}
-                            </div>
-                          </div>
+                              <div>
+                                <Link href={`/customers/detail?id=${debtor.customerId}`} className="font-semibold text-foreground text-base hover:underline">
+                                  {debtor.customerName}
+                                </Link>
+                                <div className="text-base text-muted-foreground mt-1">
+                                  📅 Última venta: {new Date(debtor.lastSaleDate).toLocaleDateString('es-CO')}
+                                </div>
+                              </div>
                           <div className="text-right">
                             <div className="font-bold text-secondary text-2xl">
                               ${debtor.totalDebt.toLocaleString()}
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-border">
+                              <div className="flex gap-2 justify-end">
+                                <Button size="lg" variant="success" onClick={() => { setPayingCustomer({ id: debtor.customerId, name: debtor.customerName }); setPaymentForm({ amount: debtor.totalDebt, paymentMethod: 'EFECTIVO', notes: '' }) }}>
+                                  <CreditCard className="w-4 h-4 mr-1" /> Cobrar
+                                </Button>
+                                <Link href={`/customers/detail?id=${debtor.customerId}`}>
+                                  <Button asChild size="lg" variant="outline">
+                                    <a>Ver</a>
+                                  </Button>
+                                </Link>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -337,7 +378,7 @@ export default function DashboardPage() {
                 <p className="text-muted-foreground text-center mb-6 text-base max-w-md">
                   Crea una nueva tanda para empezar a registrar ventas y hacer seguimiento
                 </p>
-                <Button onClick={createNewBatch} size="lg" className="text-base">
+                <Button onClick={createNewBatch} size="xl" className="text-base">
                   <Plus className="w-5 h-5 mr-2" />
                   Crear Primera Tanda
                 </Button>
@@ -399,7 +440,7 @@ export default function DashboardPage() {
                     💳
                   </div>
                   <div className="text-center">
-                    <div className="font-bold text-foreground text-base">Mi Caja</div>
+                    <div className="font-bold text-foreground text-base">Movimientos</div>
                     <div className="text-sm text-muted-foreground mt-1">Gestionar dinero</div>
                   </div>
                 </CardContent>
@@ -407,6 +448,61 @@ export default function DashboardPage() {
             </Link>
           </div>
         </div>
+        {/* Modal de Cobro desde Dashboard */}
+        {payingCustomer && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <Card className="w-full max-w-md">
+              <CardHeader>
+                <CardTitle>Registrar Cobro</CardTitle>
+                <CardDescription>Cliente: {payingCustomer?.name}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label htmlFor="payment-amount" className="block text-sm font-medium mb-1">Monto a cobrar</label>
+                  <Input
+                    id="payment-amount"
+                    aria-label="Monto a cobrar"
+                    type="number"
+                    value={paymentForm.amount}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, amount: parseFloat(e.target.value) || 0 })}
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="payment-method" className="block text-sm font-medium mb-1">Método de pago</label>
+                  <select
+                    id="payment-method"
+                    aria-label="Método de pago"
+                    value={paymentForm.paymentMethod}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value })}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="EFECTIVO">💵 Efectivo</option>
+                    <option value="NEQUI">📱 Nequi</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="payment-notes" className="block text-sm font-medium mb-1">Notas (opcional)</label>
+                  <Input
+                    id="payment-notes"
+                    aria-label="Notas adicionales"
+                    value={paymentForm.notes}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
+                    placeholder="Notas adicionales..."
+                  />
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <Button variant="outline" onClick={cancelPayment} className="flex-1">Cancelar</Button>
+                  <Button
+                    onClick={submitPayment}
+                    disabled={paymentLoading || paymentForm.amount <= 0}
+                    className="flex-1"
+                  >{paymentLoading ? 'Guardando...' : `Cobrar ${formatCurrency(paymentForm.amount)}`}</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   )
