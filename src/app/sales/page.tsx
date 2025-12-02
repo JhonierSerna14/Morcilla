@@ -290,7 +290,7 @@ export default function SalesPage() {
                             key={customer.id}
                             type="button"
                             role="option"
-                            aria-selected={selectedCustomer?.id === customer.id}
+                            aria-selected={false}
                             className="w-full text-left px-5 py-4 hover:bg-muted border-b border-border last:border-b-0 transition-colors"
                             onClick={() => {
                               setSelectedCustomer(customer)
