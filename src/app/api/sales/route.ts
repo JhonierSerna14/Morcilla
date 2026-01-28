@@ -139,6 +139,20 @@ export async function POST(request: Request) {
         }
       })
 
+      // Si la venta es pagada inmediatamente, registrar movimiento de caja
+      if (paymentStatus === "PAID" && paymentMethod) {
+        await tx.cashMovement.create({
+          data: {
+            userId: session.user.id,
+            movementType: "INCOME",
+            amount: totalAmount,
+            paymentMethod,
+            description: `Venta a ${sale.customer.name} - ${pounds} libras`,
+            movementDate: new Date()
+          }
+        })
+      }
+
       // Actualizar totales del cliente
       const updateData: any = {}
       

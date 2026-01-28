@@ -109,6 +109,18 @@ export async function POST(request: Request) {
         }
       })
 
+      // Registrar movimiento de caja como INGRESO
+      await tx.cashMovement.create({
+        data: {
+          userId: session.user.id,
+          movementType: "INCOME",
+          amount: amount,
+          paymentMethod,
+          description: `Cobro a ${collection.customer.name}`,
+          movementDate: new Date()
+        }
+      })
+
       // Actualizar totales del cliente
       await tx.customer.update({
         where: { id: customerId },

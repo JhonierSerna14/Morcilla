@@ -318,11 +318,9 @@ export default function DashboardPage() {
                                 <Button size="lg" variant="success" onClick={() => { setPayingCustomer({ id: debtor.customerId, name: debtor.customerName }); setPaymentForm({ amount: debtor.totalDebt, paymentMethod: 'EFECTIVO', notes: '' }) }}>
                                   <CreditCard className="w-4 h-4 mr-1" /> Cobrar
                                 </Button>
-                                <Link href={`/customers/detail?id=${debtor.customerId}`}>
-                                  <Button asChild size="lg" variant="outline">
-                                    <a>Ver</a>
-                                  </Button>
-                                </Link>
+                                <Button asChild size="lg" variant="outline">
+                                  <Link href={`/customers/detail?id=${debtor.customerId}`}>Ver</Link>
+                                </Button>
                               </div>
                             </div>
                           </div>

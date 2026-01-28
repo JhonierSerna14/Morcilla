@@ -25,7 +25,6 @@ enum BatchStatus {
 enum PaymentMethod {
   EFECTIVO
   NEQUI
-  TRANSFERENCIA
 }
 
 enum PaymentStatus {
@@ -61,6 +60,8 @@ model User {
   transfersTo   Transfer[] @relation("TransferTo")
 
   @@map("users")
+  @@index([active])
+  @@index([role])
 }
 
 // Modelo de Tanda de Producción
@@ -79,6 +80,8 @@ model ProductionBatch {
   collections Collection[]
 
   @@map("production_batches")
+  @@index([status])
+  @@index([productionDate])
 }
 
 // Modelo de Cliente
@@ -98,6 +101,8 @@ model Customer {
   collections Collection[]
 
   @@map("customers")
+  @@index([active])
+  @@index([name])
 }
 
 // Modelo de Venta
@@ -122,6 +127,11 @@ model Sale {
   batch      ProductionBatch @relation(fields: [batchId], references: [id])
 
   @@map("sales")
+  @@index([userId])
+  @@index([batchId])
+  @@index([customerId])
+  @@index([paymentStatus])
+  @@index([saleDate])
 }
 
 // Modelo de Cobro (cuando se cobran ventas a crédito)
@@ -143,6 +153,10 @@ model Collection {
   batch      ProductionBatch? @relation(fields: [batchId], references: [id])
 
   @@map("collections")
+  @@index([userId])
+  @@index([customerId])
+  @@index([batchId])
+  @@index([collectionDate])
 }
 
 // Modelo de Movimientos de Caja por Usuario
@@ -161,6 +175,10 @@ model CashMovement {
   user   User   @relation(fields: [userId], references: [id])
 
   @@map("cash_movements")
+  @@index([userId])
+  @@index([movementType])
+  @@index([paymentMethod])
+  @@index([movementDate])
 }
 
 // Modelo de Transferencias Internas entre Usuarios
@@ -181,6 +199,9 @@ model Transfer {
   toUser     User   @relation("TransferTo", fields: [toUserId], references: [id])
 
   @@map("transfers")
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([transferDate])
 }
 
 // Modelo de Gastos/Egresos
@@ -198,5 +219,7 @@ model Expense {
   user   User   @relation(fields: [userId], references: [id])
 
   @@map("expenses")
+  @@index([userId])
+  @@index([expenseDate])
 }
 

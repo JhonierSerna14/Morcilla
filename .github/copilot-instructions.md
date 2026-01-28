@@ -6,8 +6,8 @@ NO REALIZAR ARCHIVOS .MD de resumen, intrucciones o similares aparte de este.
 
 Este es un sistema completo de gestión para negocio familiar de morcilla desarrollado con:
 - Next.js 14 con App Router y TypeScript
-- Prisma + PostgreSQL (Vercel Postgres o Supabase)
-- NextAuth.js o Clerk para autenticación
+- Prisma + MongoDB (schema en `prisma/schema.prisma`)
+- NextAuth.js para autenticación
 - Tailwind CSS + Radix UI para interface
 - Diseño mobile-first optimizado para usuarios con poca experiencia tecnológica
 
@@ -61,9 +61,40 @@ El negocio opera por **tandas de producción**: se produce morcilla cada cierto 
 - [x] Balance general del negocio
 - [x] Métricas comparativas entre tandas
 
+## Arquitectura Técnica
+
+### Modelo de Datos (Prisma + MongoDB)
+- **ProductionBatch**: Tandas con estado ACTIVE/CLOSED, ventas asociadas
+- **Sale**: Ventas con pounds, pricePerPound, totalAmount, paymentStatus (PAID/PENDING/PARTIAL)
+- **Customer**: Clientes con totalDebt/totalPaid calculados
+- **User**: Usuarios con roles ADMIN/VENDEDOR/COBRADOR
+- **Collection**: Cobros de deudas
+- **CashMovement**: Movimientos de caja por usuario (INCOME/EXPENSE)
+- **Transfer**: Transferencias entre usuarios
+- **Expense**: Gastos con concepto obligatorio
+
+### Patrones de API
+- Autenticación JWT con NextAuth en cada endpoint (`await auth()`)
+- Validaciones estrictas: existencia de tanda activa, cliente válido, campos obligatorios
+- Queries con `include` para relaciones (ej: `sales: { include: { customer: true, user: true } }`)
+- Cálculos en runtime (totalPounds = sum(sale.pounds))
+- Errores en español: "No hay tanda activa", "Faltan campos obligatorios"
+
+### Patrones de UI
+- Componentes Radix UI + Tailwind para mobile-first
+- Navegación con iconos Lucide React y descripciones cortas
+- Formularios con react-hook-form + zod para validación
+- Estados de carga y confirmaciones visuales (verde ✓ / rojo ✗)
+- Calculadora integrada en formularios de ventas
+
+### Utilidades y Helpers
+- `batch-utils.ts`: Formateo de fechas (DD/MM), moneda COP, nombres de tandas
+- `prisma.ts`: Cliente singleton con configuración MongoDB
+- `auth.ts`: Configuración NextAuth con bcrypt para contraseñas
+
 ## Principios de Diseño UX/UI
 
-⚠️ **CRÍTICO**: Usuarios con poca experiencia tecnológica, uso 90% móvil
+⚠️ **CRÍTICO**: Usuarios con poca experiencia tecnológica, uso 100% móvil
 
 - Botones grandes y táctiles (mínimo 44x44px)
 - Flujos máximo 2-3 pasos
@@ -78,13 +109,41 @@ El negocio opera por **tandas de producción**: se produce morcilla cada cierto 
 - Calculadora integrada para ventas
 - Advertencia si no hay tanda activa
 
+## Workflows de Desarrollo
+
+### Build y Deploy
+- `npm run build`: Genera cliente Prisma, push DB schema, build Next.js
+- `npm run db:seed`: Pobla datos de prueba con tsx
+- `npm run dev`: Desarrollo local
+- Deploy Vercel: Configurar DATABASE_URL, NEXTAUTH_SECRET
+
+### Base de Datos
+- MongoDB con Prisma para schema y migrations
+- Seeds en `prisma/seed.ts` con usuarios admin/vendedor/cobrador
+- Relaciones con @db.ObjectId para MongoDB
+
+### Autenticación
+- NextAuth con JWT strategy, 30 días de sesión
+- Roles: ADMIN (full access), VENDEDOR (ventas), COBRADOR (cobros)
+- Contraseñas hasheadas con bcrypt
+
+## Convenciones del Proyecto
+
+- **Lenguaje**: Español en UI, código en inglés
+- **Moneda**: COP (pesos colombianos) con formateo Intl
+- **Fechas**: Formato DD/MM, locale es-CO
+- **Validaciones**: Campos obligatorios marcados, errores específicos
+- **Nombres**: camelCase en código, PascalCase en componentes
+- **Imports**: Alias `@/` para src/, paths absolutos
+- **API**: RESTful con Next.js App Router, JSON responses
+- **Estado**: Client components con hooks, server components para data
 
 ## Para Ejecutar el Proyecto
 
 1. `npm install` - Instalar dependencias
 2. Configurar `.env`:
 ```
-   DATABASE_URL="postgresql://..."
+   DATABASE_URL="mongodb://..."
    NEXTAUTH_URL="http://localhost:3000"
    NEXTAUTH_SECRET="..."
 ```
@@ -96,7 +155,7 @@ El negocio opera por **tandas de producción**: se produce morcilla cada cierto 
 ## Despliegue en Vercel
 
 1. Conectar repositorio GitHub a Vercel
-2. Configurar Vercel Postgres en el dashboard
+2. Configurar MongoDB Atlas en el dashboard
 3. Agregar variables de entorno en Vercel
 4. Deploy automático en cada push
 

@@ -85,34 +85,43 @@ export async function POST(request: Request) {
       )
     }
 
-    // Usar transacción para crear transferencia.
-    // NOTE: No creamos movimientos de caja aquí para evitar duplicar
-    // registros. Las transferencias se registran en la tabla `transfer` y
-    // el balance se calcula a partir de `sales`, `collections`, `transfers` y `cashMovement`.
-    // Antes de crear la transferencia, verificar que el usuario que envía
-    // tenga saldo suficiente en el método de pago seleccionado.
-    // Calculamos el balance únicamente para ese método de pago.
-    const senderBalanceResult = await prisma.$transaction(async (txWhere: any) => {
-      const [sales, collections, transfersSent, transfersReceived, cashMovementsIncome, cashMovementsExpense] = await Promise.all([
-        txWhere.sale.aggregate({ where: { userId: session.user.id, paymentMethod, paymentStatus: 'PAID' }, _sum: { totalAmount: true } }),
-        txWhere.collection.aggregate({ where: { userId: session.user.id, paymentMethod }, _sum: { amount: true } }),
-        txWhere.transfer.aggregate({ where: { fromUserId: session.user.id, paymentMethod }, _sum: { amount: true } }),
-        txWhere.transfer.aggregate({ where: { toUserId: session.user.id, paymentMethod }, _sum: { amount: true } }),
-        txWhere.cashMovement.aggregate({ where: { userId: session.user.id, movementType: 'INCOME', paymentMethod }, _sum: { amount: true } }),
-        txWhere.cashMovement.aggregate({ where: { userId: session.user.id, movementType: 'EXPENSE', paymentMethod }, _sum: { amount: true } }),
-      ])
-
-      const salesAmount = sales._sum.totalAmount || 0
-      const collectionsAmount = collections._sum.amount || 0
-      const transfersSentAmount = transfersSent._sum.amount || 0
-      const transfersReceivedAmount = transfersReceived._sum.amount || 0
-      const cashIncome = cashMovementsIncome._sum.amount || 0
-      const cashExpense = cashMovementsExpense._sum.amount || 0
-
-      return salesAmount + collectionsAmount - transfersSentAmount + transfersReceivedAmount + cashIncome - cashExpense
+    // Verificar que el usuario tenga saldo suficiente
+    const senderBalance = await prisma.cashMovement.aggregate({
+      where: {
+        userId: session.user.id,
+        paymentMethod
+      },
+      _sum: {
+        amount: true
+      }
     })
 
-    if (amount > senderBalanceResult) {
+    // Calcular balance: ingresos - egresos
+    const totalIncome = await prisma.cashMovement.aggregate({
+      where: {
+        userId: session.user.id,
+        paymentMethod,
+        movementType: "INCOME"
+      },
+      _sum: {
+        amount: true
+      }
+    })
+
+    const totalExpense = await prisma.cashMovement.aggregate({
+      where: {
+        userId: session.user.id,
+        paymentMethod,
+        movementType: "EXPENSE"
+      },
+      _sum: {
+        amount: true
+      }
+    })
+
+    const balance = (totalIncome._sum.amount || 0) - (totalExpense._sum.amount || 0)
+
+    if (amount > balance) {
       return NextResponse.json({ error: 'No tienes suficiente saldo para realizar esta transferencia' }, { status: 400 })
     }
 
@@ -133,11 +142,29 @@ export async function POST(request: Request) {
         }
       })
 
-      // Nota: No insertamos movimientos de caja aquí para evitar duplicados.
-      // Si se requiere mantener movimiento en `cashMovement`, se puede crear
-      // con un campo adicional para relacionarlo a la transferencia; por ahora,
-      // evitamos crear movimientos duplicados pues la interfaz lista las
-      // transferencias por separado.
+      // Registrar movimiento de caja como EGRESO para el usuario que envía
+      await tx.cashMovement.create({
+        data: {
+          userId: session.user.id,
+          movementType: "EXPENSE",
+          amount,
+          paymentMethod,
+          description: `Transferencia a ${transfer.toUser.name}: ${concept}`,
+          movementDate: new Date()
+        }
+      })
+
+      // Registrar movimiento de caja como INGRESO para el usuario que recibe
+      await tx.cashMovement.create({
+        data: {
+          userId: toUserId,
+          movementType: "INCOME",
+          amount,
+          paymentMethod,
+          description: `Transferencia de ${transfer.fromUser.name}: ${concept}`,
+          movementDate: new Date()
+        }
+      })
 
       return transfer
     })

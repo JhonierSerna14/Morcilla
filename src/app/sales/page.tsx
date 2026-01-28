@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Search, Calculator, DollarSign, Scale, AlertCircle } from "lucide-react"
 import { formatBatchName } from "@/lib/batch-utils"
+import { useToast } from "@/components/ui/toast"
 
 interface Customer {
   id: string
@@ -29,6 +30,8 @@ export default function SalesPage() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+
+  const { success, error, warning, ToastContainer } = useToast()
 
   // Form states
   const [saleForm, setSaleForm] = useState({
@@ -89,12 +92,12 @@ export default function SalesPage() {
     
     // Validaciones con mensajes más amigables
     if (!selectedCustomer) {
-      alert("⚠️ Primero debes buscar y seleccionar un cliente")
+      warning("Primero debes buscar y seleccionar un cliente")
       return
     }
 
     if (!activeBatch) {
-      alert("❌ No hay tanda activa. Ve al Dashboard y crea una nueva tanda antes de registrar ventas.")
+      error("No hay tanda activa. Ve al Dashboard y crea una nueva tanda antes de registrar ventas.")
       return
     }
 
@@ -102,7 +105,7 @@ export default function SalesPage() {
     const pricePerPound = parseFloat(saleForm.pricePerPound)
 
     if (!pounds || pounds <= 0 || !Number.isInteger(pounds)) {
-      alert("❌ Por favor ingresa una cantidad de libras válida (números enteros: 1, 2, 3...)")
+      error("Por favor ingresa una cantidad de libras válida (números enteros: 1, 2, 3...)")
       return
     }
 
@@ -113,7 +116,7 @@ export default function SalesPage() {
 
     // Validar método de pago si es pago inmediato
     if (saleForm.paymentStatus === "PAID" && !saleForm.paymentMethod) {
-      alert("❌ Debes seleccionar cómo pagó el cliente")
+      error("Debes seleccionar cómo pagó el cliente")
       return
     }
 
@@ -148,11 +151,7 @@ export default function SalesPage() {
       if (response.ok) {
         // Mostrar mensaje de éxito más detallado
         const total = pounds * pricePerPound
-        alert(`✅ ¡Venta registrada exitosamente!\n\n` +
-              `Cliente: ${selectedCustomer.name}\n` +
-              `Cantidad: ${pounds} libras\n` +
-              `Total: $${total.toLocaleString()}\n` +
-              `Estado: ${saleForm.paymentStatus === 'PAID' ? 'Pagado' : 'A crédito'}`)
+        success(`¡Venta registrada exitosamente!\n\nCliente: ${selectedCustomer.name}\nCantidad: ${pounds} libras\nTotal: $${total.toLocaleString()}\nEstado: ${saleForm.paymentStatus === 'PAID' ? 'Pagado' : 'A crédito'}`)
         
         // Reset form
         setSaleForm({
@@ -169,11 +168,11 @@ export default function SalesPage() {
         fetchCustomers()
       } else {
         const error = await response.json()
-        alert(`❌ Error al registrar la venta:\n${error.error || "Error desconocido"}`)
+        error(`Error al registrar la venta:\n${error.error || "Error desconocido"}`)
       }
-    } catch (error) {
-      console.error("Error creating sale:", error)
-      alert("❌ Error de conexión. Verifica tu internet y vuelve a intentar.")
+    } catch (err) {
+      console.error("Error creating sale:", err)
+      error("Error de conexión. Verifica tu internet y vuelve a intentar.")
     } finally {
       setSaving(false)
     }
@@ -352,7 +351,7 @@ export default function SalesPage() {
                       type="number"
                       step="100"
                       min="0"
-                      placeholder="11000"
+                      placeholder="12000"
                       value={saleForm.pricePerPound}
                       onChange={(e) =>
                         setSaleForm({ ...saleForm, pricePerPound: e.target.value })
@@ -470,6 +469,7 @@ export default function SalesPage() {
           </CardContent>
         </Card>
       </div>
+      <ToastContainer />
     </div>
   )
 }
