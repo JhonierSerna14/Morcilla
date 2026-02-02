@@ -49,16 +49,20 @@ export async function GET() {
       sum + parseFloat(sale.totalAmount.toString()), 0
     )
     
-    const paidAmount = activeBatch.sales
+    const paidSalesAmount = activeBatch.sales
       .filter((sale: any) => sale.paymentStatus === "PAID")
       .reduce((sum: number, sale: any) => sum + parseFloat(sale.totalAmount.toString()), 0)
-    
-    const pendingAmount = totalRevenue - paidAmount
 
-    // Calcular detalles adicionales para el dashboard
+    // Calcular detalles adicionales para el dashboard (incluye cobros)
     const totalCollections = activeBatch.collections.reduce((sum: number, collection: any) => 
       sum + parseFloat(collection.amount.toString()), 0
     )
+
+    // El monto cobrado incluye ventas pagadas + cobros registrados
+    const paidAmount = paidSalesAmount + totalCollections
+
+    const pendingAmount = totalRevenue - paidAmount
+
 
     // Obtener clientes únicos de esta tanda
     const uniqueCustomers = Array.from(new Set(activeBatch.sales.map((sale: any) => sale.customerId)))

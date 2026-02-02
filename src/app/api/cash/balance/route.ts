@@ -47,8 +47,15 @@ export async function GET() {
       }),
       
       // Movimientos de caja (separamos ingresos y egresos)
+        // Excluir movimientos automáticos generados por ventas o cobros (evita doble conteo)
         prisma.cashMovement.aggregate({
-          where: { userId },
+          where: {
+            userId,
+            NOT: [
+              { description: { startsWith: 'Cobro a' } },
+              { description: { startsWith: 'Venta a' } }
+            ]
+          },
           _sum: {
             amount: true
           }
@@ -94,9 +101,17 @@ export async function GET() {
       }),
       
       // Movimientos de caja ingresos por método
+      // Excluir ingresos automáticos generados por ventas o cobros (evita doble conteo)
       prisma.cashMovement.groupBy({
         by: ['paymentMethod'],
-        where: { userId, movementType: 'INCOME' },
+        where: {
+          userId,
+          movementType: 'INCOME',
+          NOT: [
+            { description: { startsWith: 'Cobro a' } },
+            { description: { startsWith: 'Venta a' } }
+          ]
+        },
         _sum: { amount: true }
       }),
       // Movimientos de caja egresos por método

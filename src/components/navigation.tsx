@@ -95,7 +95,42 @@ export default function MobileNavigation() {
     <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg backdrop-blur-lg lg:hidden">
       {/* Navegación principal móvil */}
       <div className="flex overflow-x-auto px-2 py-2">
-        {navItems.slice(0, 4).map((item) => {
+        {/* Mostrar: Dashboard, Ventas, Clientes */}
+        {navItems.slice(0, 3).map((item) => {
+          const Icon = item.icon
+          const isActive = pathname === item.href
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex-shrink-0 px-3 py-2 mx-1 rounded-lg text-center min-w-[88px] transition-all duration-200 interactive-large ${isActive
+                ? "bg-primary text-primary-foreground shadow-md font-semibold"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              aria-label={`Ir a ${item.name}`}
+            >
+              <Icon className="w-6 h-6 mx-auto mb-1" />
+              <div className="text-sm font-medium">{item.name}</div>
+            </Link>
+          )
+        })}
+
+        {/* Botón rápido: Cobrar (antes de Movimientos) */}
+        <Link
+          href="/collections"
+          className={`flex-shrink-0 px-3 py-2 mx-1 rounded-lg text-center min-w-[88px] transition-all duration-200 interactive-large ${pathname === '/collections'
+            ? "bg-primary text-primary-foreground shadow-md font-semibold"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          aria-label="Ir a Cobrar"
+        >
+          <DollarSign className="w-6 h-6 mx-auto mb-1" />
+          <div className="text-sm font-medium">Cobrar</div>
+        </Link>
+
+        {/* Movimientos (el que estaba en posición 4) */}
+        {navItems.slice(3, 4).map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
 

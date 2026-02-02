@@ -1,5 +1,3 @@
-import { Scale } from "lucide-react"
-
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg"
   message?: string
@@ -30,9 +28,9 @@ export default function LoadingSpinner({
         {/* Spinner principal */}
         <div className={`${sizes.spinner} border-4 border-muted border-t-primary rounded-full animate-spin mx-auto mb-4`}></div>
         
-        {/* Icono de morcilla en el centro */}
+        {/* Icono de marranito en el centro */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <Scale className="w-6 h-6 text-primary animate-pulse" />
+          <img src="/marranito.svg" alt="Marranito" className="w-6 h-6 animate-pulse" />
         </div>
       </div>
       <p className={`${sizes.text} text-muted-foreground font-medium`}>{message}</p>

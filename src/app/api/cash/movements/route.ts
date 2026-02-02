@@ -76,8 +76,15 @@ export async function GET(request: Request) {
     })
 
     // Obtener movimientos de caja (egresos/ingresos manuales)
+    // Excluir movimientos automáticos creados por ventas o cobros para evitar duplicados en la lista
     const cashMovements = await prisma.cashMovement.findMany({
-      where: { userId: session.user.id },
+      where: {
+        userId: session.user.id,
+        NOT: [
+          { description: { startsWith: 'Cobro a' } },
+          { description: { startsWith: 'Venta a' } }
+        ]
+      },
       orderBy: { movementDate: 'desc' },
       take: limit
     })

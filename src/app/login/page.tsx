@@ -61,10 +61,11 @@ function LoginForm() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold text-center text-foreground">
-            🥓 Gestión Familiar Morcilla
-          </CardTitle>
-          <CardDescription className="text-center text-base">
+          <div className="flex items-center justify-center space-x-3">
+            <img src="/marranito.svg" alt="Marranito" className="w-10 h-10" />
+            <CardTitle className="text-2xl font-bold text-foreground">Gestión Familiar Morcilla</CardTitle>
+          </div>
+          <CardDescription className="text-center text-base mt-1">
             Ingresa tus credenciales para acceder
           </CardDescription>
         </CardHeader>
