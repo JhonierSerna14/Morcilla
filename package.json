@@ -17,7 +17,8 @@
     "db:deploy": "prisma db push",
     "db:seed:prod": "tsx prisma/seed.ts",
     "setup:prod": "prisma generate && prisma db push && tsx scripts/create-admin.ts",
-    "generate:secret": "node scripts/generate-secret.mjs"
+    "generate:secret": "node scripts/generate-secret.mjs",
+    "icons:from-png": "node scripts/generate-icons.js public/Icono.png"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -54,7 +55,9 @@
     "eslint": "^9",
     "eslint-config-next": "^16.1.6",
     "eslint-formatter-codeframe": "^7.32.2",
+    "png-to-ico": "^3.0.1",
     "prisma": "^6.19.0",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
     "typescript": "^5"
