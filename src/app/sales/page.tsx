@@ -36,7 +36,7 @@ export default function SalesPage() {
   // Form states
   const [saleForm, setSaleForm] = useState({
     pounds: "",
-    pricePerPound: "11000", // Precio por defecto
+    pricePerPound: "12000", // Precio por defecto
     paymentMethod: "EFECTIVO",
     paymentStatus: "PAID",
     notes: ""
@@ -156,7 +156,7 @@ export default function SalesPage() {
         // Reset form
         setSaleForm({
           pounds: "",
-          pricePerPound: "11000",
+          pricePerPound: "12000",
           paymentMethod: "EFECTIVO",
           paymentStatus: "PAID",
           notes: ""
