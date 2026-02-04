@@ -9,55 +9,6 @@ export default function Page() {
   )
 }
 
-        // Reset form
-        setCollectionForm({
-          amount: "",
-          paymentMethod: "EFECTIVO",
-          notes: ""
-        })
-        setSelectedCustomer(null)
-        setSearchCustomer("")
-
-        // Refresh data
-        fetchCustomersWithDebt()
-        fetchCollections()
-      } else {
-        const error = await response.json()
-        alert(`❌ Error al registrar el cobro:\n${error.error || "Error desconocido"}`)
-      }
-    } catch (error) {
-      console.error("Error:", error)
-      alert("❌ Error de conexión. Verifica tu internet y vuelve a intentar.")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">⏳ Cargando...</p>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-card border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-4">
-            <h1 className="text-2xl font-bold text-foreground">💳 Cobrar Deudas</h1>
-            <p className="text-muted-foreground">
-              Registra los pagos de clientes que compraron a crédito
-            </p>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Success Message */}
         {success && (
