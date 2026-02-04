@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -46,6 +46,10 @@ export default function CollectionsClient() {
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [loading, setLoading] = useState(true)
+
+  // Mobile UX: track focus and results container to keep suggestions visible above keyboard
+  const [searchFocused, setSearchFocused] = useState(false)
+  const resultsRef = useRef<HTMLDivElement | null>(null)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
   const [showAllCustomers, setShowAllCustomers] = useState(false)
@@ -56,6 +60,13 @@ export default function CollectionsClient() {
     paymentMethod: "EFECTIVO",
     notes: ""
   })
+
+  // Helper: format raw digits into thousands separated with dots for display
+  const formatWithThousands = (raw: string) => {
+    const digits = (raw || "").toString().replace(/\D/g, "")
+    if (!digits) return ""
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+  }
 
   useEffect(() => {
     Promise.all([
@@ -75,16 +86,18 @@ export default function CollectionsClient() {
       const customer = customers.find(c => c.id === customerId)
       if (customer) {
         setSelectedCustomer(customer)
-        setSearchCustomer(customerName)
+        // Keep the search input empty after selecting from URL prefill
+        setSearchCustomer("")
         setCollectionForm({
-          amount: amount || customer.totalDebt.toString(),
+          // store raw digits only, remove any separators
+          amount: (amount || customer.totalDebt.toString()).toString().replace(/\D/g, ''),
           paymentMethod: "EFECTIVO",
           notes: ""
         })
       } else if (customerName) {
         setSearchCustomer(customerName)
         setCollectionForm({
-          amount: amount || "",
+          amount: (amount || "").toString().replace(/\D/g, ''),
           paymentMethod: "EFECTIVO",
           notes: ""
         })
@@ -103,6 +116,16 @@ export default function CollectionsClient() {
       setFilteredCustomers([])
     }
   }, [searchCustomer, customers])
+
+  // Keep results visible on mobile when keyboard opens: scroll them into view
+  useEffect(() => {
+    if (filteredCustomers.length > 0 && searchFocused) {
+      // Slight delay so layout settles when keyboard is shown
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 120)
+    }
+  }, [filteredCustomers, searchFocused])
 
   const fetchCustomersWithDebt = async () => {
     try {
@@ -233,7 +256,7 @@ export default function CollectionsClient() {
       <div className="bg-card border-b border-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-4">
-            <h1 className="text-2xl font-bold text-foreground">💳 Cobrar Deudas</h1>
+            <h1 className="text-2xl font-bold text-foreground">Cobrar Deudas</h1>
             <p className="text-muted-foreground">
               Registra los pagos de clientes que compraron a crédito
             </p>
@@ -272,6 +295,8 @@ export default function CollectionsClient() {
                   placeholder="Buscar por nombre o teléfono..."
                   value={searchCustomer}
                   onChange={(e) => setSearchCustomer(e.target.value)}
+                  onFocus={() => setSearchFocused(true)}
+                  onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
                   className="pl-10 text-base"
                   aria-label="Buscar cliente por nombre o teléfono"
                   aria-expanded={filteredCustomers.length > 0}
@@ -279,27 +304,32 @@ export default function CollectionsClient() {
               </div>
 
               {filteredCustomers.length > 0 && (
-                <div role="listbox" aria-label="Resultados de búsqueda de clientes" className="border-2 border-border rounded-lg bg-background max-h-40 overflow-y-auto">
+                <div ref={resultsRef} role="listbox" aria-label="Resultados de búsqueda de clientes" className="border-2 border-border rounded-lg bg-background mt-2 max-h-60 overflow-y-auto z-40 shadow-sm">
                   {filteredCustomers.map((customer) => (
                     <button
                       key={customer.id}
+                      onMouseDown={(e) => e.preventDefault()} /* prevent blur before click */
                       onClick={() => {
                         setSelectedCustomer(customer)
-                        setSearchCustomer(customer.name)
+                        // Clear the search input to avoid showing the name duplicated
+                        setSearchCustomer("")
                         setFilteredCustomers([])
                       }}
                       role="option"
                       aria-selected={selectedCustomer?.id === customer.id}
                       className="w-full text-left px-4 py-3 hover:bg-primary/5 border-b border-border last:border-b-0 transition"
                     >
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <div className="font-medium text-foreground">{customer.name}</div>
-                          {customer.phone && (
-                            <div className="text-sm text-muted-foreground">{customer.phone}</div>
-                          )}
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <Search className="w-5 h-5 text-muted-foreground" />
+                          <div>
+                            <div className="font-medium text-foreground">{customer.name}</div>
+                            {customer.phone && (
+                              <div className="text-sm text-muted-foreground">{customer.phone}</div>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right min-w-[90px]">
                           <div className="font-bold text-destructive">
                             ${customer.totalDebt.toLocaleString()}
                           </div>
@@ -335,12 +365,16 @@ export default function CollectionsClient() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Monto a Cobrar</label>
                 <Input
-                  type="number"
-                  placeholder="Ej: 25000"
-                  value={collectionForm.amount}
-                  onChange={(e) => setCollectionForm({...collectionForm, amount: e.target.value})}
-                  min="0"
-                  step="1000"
+                  type="text"
+                  placeholder="Ej: 25.000"
+                  value={formatWithThousands(collectionForm.amount)}
+                  onChange={(e) => {
+                    // allow only digits in the stored value, format visually with dots
+                    const digits = e.target.value.replace(/\D/g, '')
+                    setCollectionForm({...collectionForm, amount: digits})
+                  }}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   required
                 />
               </div>
@@ -409,7 +443,8 @@ export default function CollectionsClient() {
                       key={customer.id}
                       onClick={() => {
                         setSelectedCustomer(customer)
-                        setSearchCustomer(customer.name)
+                        // Clear the search input so the name doesn't appear twice
+                        setSearchCustomer("")
                         setCollectionForm({
                           amount: customer.totalDebt.toString(),
                           paymentMethod: "EFECTIVO",

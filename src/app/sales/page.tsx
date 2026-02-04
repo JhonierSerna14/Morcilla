@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -31,16 +31,27 @@ export default function SalesPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
+  // Mobile UX helpers for search results visibility
+  const [searchFocused, setSearchFocused] = useState(false)
+  const resultsRef = useRef<HTMLDivElement | null>(null)
+
   const { success, error, warning, ToastContainer } = useToast()
 
   // Form states
   const [saleForm, setSaleForm] = useState({
     pounds: "",
-    pricePerPound: "12000", // Precio por defecto
+    pricePerPound: "12000", // Precio por defecto (solo dígitos internamente)
     paymentMethod: "EFECTIVO",
     paymentStatus: "PAID",
     notes: ""
   })
+
+  // Helper: format numeric string with thousands separator (puntos)
+  const formatWithThousands = (raw: string) => {
+    const digits = (raw || "").toString().replace(/\D/g, "")
+    if (!digits) return ""
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+  }
 
   useEffect(() => {
     Promise.all([
@@ -60,6 +71,15 @@ export default function SalesPage() {
       setFilteredCustomers([])
     }
   }, [searchCustomer, customers])
+
+  // When results appear and input is focused on mobile, scroll them into view so they aren't hidden by the keyboard
+  useEffect(() => {
+    if (filteredCustomers.length > 0 && searchFocused) {
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 120)
+    }
+  }, [filteredCustomers, searchFocused])
 
   const fetchCustomers = async () => {
     try {
@@ -268,44 +288,51 @@ export default function SalesPage() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      placeholder="🔍 Buscar cliente por nombre o teléfono..."
-                      value={searchCustomer}
-                      onChange={(e) => setSearchCustomer(e.target.value)}
-                      className="pl-12 text-base"
-                      aria-label="Buscar cliente por nombre o teléfono"
-                      aria-expanded={filteredCustomers.length > 0}
-                    />
+                  <div>
+                    <div className="relative">
+                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Input
+                        placeholder="🔍 Buscar cliente por nombre o teléfono..."
+                        value={searchCustomer}
+                        onChange={(e) => setSearchCustomer(e.target.value)}
+                        onFocus={() => setSearchFocused(true)}
+                        onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
+                        className="pl-12 text-base"
+                        aria-label="Buscar cliente por nombre o teléfono"
+                        aria-expanded={filteredCustomers.length > 0}
+                      />
+                    </div>
                     {filteredCustomers.length > 0 && (
-                      <div
-                        role="listbox"
-                        aria-label="Resultados de búsqueda de clientes"
-                        className="w-full mt-2 border-2 border-border rounded-lg bg-background shadow-sm max-h-60 overflow-auto"
-                      >
+                      <div ref={resultsRef} role="listbox" aria-label="Resultados de búsqueda de clientes" className="w-full mt-2 border-2 border-border rounded-lg bg-background shadow-sm max-h-60 overflow-auto z-40">
                         {filteredCustomers.map((customer) => (
                           <button
                             key={customer.id}
                             type="button"
                             role="option"
                             aria-selected={false}
-                            className="w-full text-left px-5 py-4 hover:bg-muted border-b border-border last:border-b-0 transition-colors"
+                            onMouseDown={(e) => e.preventDefault()} /* prevent blur before click */
+                            className="w-full text-left px-5 py-3 hover:bg-muted border-b border-border last:border-b-0 transition-colors"
                             onClick={() => {
                               setSelectedCustomer(customer)
                               setSearchCustomer("")
                             }}
                           >
-                            <div className="font-semibold text-base text-foreground">{customer.name}</div>
-                            {customer.phone && (
-                              <div className="text-sm text-muted-foreground mt-1">📱 {customer.phone}</div>
-                            )}
-                            <div className="text-sm text-muted-foreground mt-2">
-                              ⏳ Deuda: <span className={`font-semibold ${
-                                Number(customer.totalDebt) > 0 ? 'text-destructive' : 'text-accent'
-                              }`}>
-                                ${Number(customer.totalDebt).toLocaleString()}
-                              </span>
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-3">
+                                <Search className="w-5 h-5 text-muted-foreground" />
+                                <div>
+                                  <div className="font-semibold text-base text-foreground">{customer.name}</div>
+                                  {customer.phone && (
+                                    <div className="text-sm text-muted-foreground mt-1">📱 {customer.phone}</div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-right min-w-[90px]">
+                                <div className="font-bold text-destructive">
+                                  ${Number(customer.totalDebt).toLocaleString()}
+                                </div>
+                                <div className="text-sm text-muted-foreground">⏳ Deuda</div>
+                              </div>
                             </div>
                           </button>
                         ))}
@@ -348,14 +375,16 @@ export default function SalesPage() {
                   <div className="relative">
                     <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
-                      type="number"
-                      step="100"
-                      min="0"
-                      placeholder="12000"
-                      value={saleForm.pricePerPound}
-                      onChange={(e) =>
-                        setSaleForm({ ...saleForm, pricePerPound: e.target.value })
-                      }
+                      type="text"
+                      placeholder="12.000"
+                      value={formatWithThousands(saleForm.pricePerPound)}
+                      onChange={(e) => {
+                        // Guardar solo dígitos internamente, mostrar con puntos
+                        const digits = e.target.value.replace(/\D/g, '')
+                        setSaleForm({ ...saleForm, pricePerPound: digits })
+                      }}
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       className="pl-12 text-base"
                       required
                     />
