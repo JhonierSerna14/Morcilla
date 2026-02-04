@@ -42,6 +42,12 @@ const baseNavItems: NavItem[] = [
     description: "Registrar ventas"
   },
   {
+    name: "Cobrar",
+    href: "/collections",
+    icon: DollarSign,
+    description: "Cobrar deudas"
+  },
+  {
     name: "Clientes",
     href: "/customers",
     icon: Users,
@@ -95,8 +101,8 @@ export default function MobileNavigation() {
     <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg backdrop-blur-lg lg:hidden">
       {/* Navegación principal móvil */}
       <div className="flex overflow-x-auto px-2 py-2">
-        {/* Mostrar: Dashboard, Ventas, Clientes */}
-        {navItems.slice(0, 3).map((item) => {
+        {/* Mostrar: Dashboard, Ventas, Cobrar, Clientes */}
+        {navItems.slice(0, 4).map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
 
@@ -116,21 +122,8 @@ export default function MobileNavigation() {
           )
         })}
 
-        {/* Botón rápido: Cobrar (antes de Movimientos) */}
-        <Link
-          href="/collections"
-          className={`flex-shrink-0 px-3 py-2 mx-1 rounded-lg text-center min-w-[88px] transition-all duration-200 interactive-large ${pathname === '/collections'
-            ? "bg-primary text-primary-foreground shadow-md font-semibold"
-            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
-          aria-label="Ir a Cobrar"
-        >
-          <DollarSign className="w-6 h-6 mx-auto mb-1" />
-          <div className="text-sm font-medium">Cobrar</div>
-        </Link>
-
-        {/* Movimientos (el que estaba en posición 4) */}
-        {navItems.slice(3, 4).map((item) => {
+        {/* Movimientos */}
+        {navItems.slice(4, 5).map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
 
@@ -179,7 +172,7 @@ export default function MobileNavigation() {
                   : "bg-muted text-foreground hover:bg-accent hover:text-accent-foreground"
                   }`}
                 aria-label={`Ir a ${item.name}`}
-              >
+              >5
                 <Icon className="w-5 h-5 mr-3" />
                 <div>
                   <div className="font-medium text-sm">{item.name}</div>

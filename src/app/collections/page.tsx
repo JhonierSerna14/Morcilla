@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -36,6 +37,7 @@ interface ActiveBatch {
 }
 
 export default function CollectionsPage() {
+  const searchParams = useSearchParams()
   const [customers, setCustomers] = useState<Customer[]>([])
   const [collections, setCollections] = useState<Collection[]>([])
   const [activeBatch, setActiveBatch] = useState<ActiveBatch | null>(null)
@@ -45,6 +47,7 @@ export default function CollectionsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [showAllCustomers, setShowAllCustomers] = useState(false)
 
   // Form states
   const [collectionForm, setCollectionForm] = useState({
@@ -60,6 +63,35 @@ export default function CollectionsPage() {
       fetchCollections()
     ]).finally(() => setLoading(false))
   }, [])
+
+  // Pre-llenar datos desde URL
+  useEffect(() => {
+    const customerId = searchParams.get('customerId')
+    const customerName = searchParams.get('customerName')
+    const amount = searchParams.get('amount')
+
+    if (customerId && customerName) {
+      // Buscar el cliente completo en la lista
+      const customer = customers.find(c => c.id === customerId)
+      if (customer) {
+        setSelectedCustomer(customer)
+        setSearchCustomer(customerName)
+        setCollectionForm({
+          amount: amount || customer.totalDebt.toString(),
+          paymentMethod: "EFECTIVO",
+          notes: ""
+        })
+      } else if (customerName) {
+        // Si aún no se ha cargado la lista de clientes, crear un objeto temporal
+        setSearchCustomer(customerName)
+        setCollectionForm({
+          amount: amount || "",
+          paymentMethod: "EFECTIVO",
+          notes: ""
+        })
+      }
+    }
+  }, [searchParams, customers])
 
   useEffect(() => {
     if (searchCustomer.trim()) {
@@ -384,63 +416,58 @@ export default function CollectionsPage() {
                 <p className="text-muted-foreground">✅ ¡Excelente! No hay deudas pendientes</p>
               </div>
             ) : (
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {customers.slice(0, 10).map((customer) => (
-                  <div key={customer.id} className="flex justify-between items-center p-3 bg-destructive/10 rounded-lg border border-destructive/20">
-                    <div>
-                      <div className="font-medium text-foreground">{customer.name}</div>
-                      {customer.phone && (
-                        <div className="text-sm text-muted-foreground">{customer.phone}</div>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold text-destructive">
-                        ${customer.totalDebt.toLocaleString()}
+              <div className="space-y-4">
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {customers.slice(0, showAllCustomers ? customers.length : 10).map((customer) => (
+                    <button
+                      key={customer.id}
+                      onClick={() => {
+                        setSelectedCustomer(customer)
+                        setSearchCustomer(customer.name)
+                        setCollectionForm({
+                          amount: customer.totalDebt.toString(),
+                          paymentMethod: "EFECTIVO",
+                          notes: ""
+                        })
+                        window.scrollTo({ top: 0, behavior: 'smooth' })
+                      }}
+                      className="w-full flex justify-between items-center p-4 bg-destructive/10 rounded-lg border-2 border-destructive/20 hover:bg-destructive/20 hover:border-destructive/40 transition-all cursor-pointer"
+                    >
+                      <div className="text-left">
+                        <div className="font-medium text-foreground">{customer.name}</div>
+                        {customer.phone && (
+                          <div className="text-sm text-muted-foreground">{customer.phone}</div>
+                        )}
                       </div>
-                    </div>
-                  </div>
-                ))}
-                {customers.length > 10 && (
-                  <div className="text-center text-muted-foreground text-sm py-2">
-                    📋 Y {customers.length - 10} clientes más...
-                  </div>
+                      <div className="text-right">
+                        <div className="font-bold text-destructive">
+                          ${customer.totalDebt.toLocaleString()}
+                        </div>
+                        <div className="text-xs text-muted-foreground">Click para cobrar</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                
+                {customers.length > 10 && !showAllCustomers && (
+                  <Button 
+                    onClick={() => setShowAllCustomers(true)}
+                    variant="outline"
+                    className="w-full text-base"
+                  >
+                    👁️ Ver Más ({customers.length - 10} clientes más)
+                  </Button>
                 )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Historial de Cobros Recientes */}
-        <Card>
-          <CardHeader>
-            <CardTitle>💳 Cobros Recientes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {collections.length === 0 ? (
-              <div className="text-center py-8">
-                <CreditCard className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                <p className="text-muted-foreground">ℹ️ No hay cobros registrados</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-64 overflow-y-auto">
-                {collections.slice(0, 5).map((collection) => (
-                  <div key={collection.id} className="flex justify-between items-center p-3 border-2 border-border rounded-lg hover:bg-primary/5 transition">
-                    <div>
-                      <div className="font-medium text-foreground">{collection.customer.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {new Date(collection.collectionDate).toLocaleDateString('es-CO')} - {collection.paymentMethod}
-                      </div>
-                      {collection.batch && (
-                        <div className="text-xs text-primary">📋 {collection.batch.name}</div>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold text-accent">
-                        +${collection.amount.toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                
+                {showAllCustomers && (
+                  <Button 
+                    onClick={() => setShowAllCustomers(false)}
+                    variant="outline"
+                    className="w-full text-base"
+                  >
+                    👁️ Ver Menos
+                  </Button>
+                )}
               </div>
             )}
           </CardContent>

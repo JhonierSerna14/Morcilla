@@ -71,6 +71,16 @@ async function getFinancialSummary(batchId?: string | null, dateFilter?: any) {
     }
   })
 
+  // Ventas pagadas de contado
+  const paidSales = await prisma.sale.aggregate({
+    _sum: { totalAmount: true },
+    where: {
+      paymentStatus: "PAID",
+      ...(batchId && { batchId }),
+      ...(dateFilter && { saleDate: dateFilter })
+    }
+  })
+
   // Total cobros
   const totalCollections = await prisma.collection.aggregate({
     _sum: { amount: true },
@@ -105,7 +115,8 @@ async function getFinancialSummary(batchId?: string | null, dateFilter?: any) {
       sales: {
         amount: totalSales._sum.totalAmount || 0,
         pounds: totalSales._sum.pounds || 0,
-        count: totalSales._count
+        count: totalSales._count,
+        paidAmount: paidSales._sum.totalAmount || 0
       },
       collections: {
         amount: totalCollections._sum.amount || 0,

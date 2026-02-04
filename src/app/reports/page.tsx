@@ -30,6 +30,7 @@ interface FinancialSummary {
       amount: number
       pounds: number
       count: number
+      paidAmount: number
     }
     collections: {
       amount: number
@@ -356,29 +357,26 @@ export default function ReportsPage() {
                     <h3 className="font-semibold text-lg text-accent">💰 INGRESOS</h3>
                     <div className="space-y-3">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Ventas ({financialSummary.totals.sales.count})</span>
+                        <span className="text-muted-foreground">Ventas Totales ({financialSummary.totals.sales.count})</span>
                         <span className="font-semibold text-foreground">
                           ${financialSummary.totals.sales.amount.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Cobros ({financialSummary.totals.collections.count})</span>
-                        <span className="font-semibold text-foreground">
-                          ${financialSummary.totals.collections.amount.toLocaleString()}
                         </span>
                       </div>
                       <div className="border-t-2 border-accent/30 pt-3"></div>
                       <div className="flex justify-between font-bold text-accent text-lg">
                         <span>Total Ingresos</span>
                         <span>
-                          ${(financialSummary.totals.sales.amount + financialSummary.totals.collections.amount).toLocaleString()}
+                          ${financialSummary.totals.sales.amount.toLocaleString()}
                         </span>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-2 italic">
+                        ℹ️ Los cobros reducen la deuda, no son ingresos adicionales
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-4 bg-destructive/10 p-5 rounded-lg border-2 border-destructive/30">
-                    <h3 className="font-semibold text-lg text-destructive">📉 EGRESOS Y PENDIENTES</h3>
+                    <h3 className="font-semibold text-lg text-destructive">📉 EGRESOS</h3>
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Gastos ({financialSummary.totals.expenses.count})</span>
@@ -401,13 +399,19 @@ export default function ReportsPage() {
                   <div className="flex justify-between items-center text-2xl font-bold gap-4">
                     <span className="text-foreground">📊 Utilidad Neta Aproximada:</span>
                     <span className={
-                      (financialSummary.totals.sales.amount + financialSummary.totals.collections.amount - 
+                      (financialSummary.totals.sales.amount - 
                        financialSummary.totals.expenses.amount) >= 0
                         ? "text-accent" : "text-destructive"
                     }>
-                      ${((financialSummary.totals.sales.amount + financialSummary.totals.collections.amount) - 
+                      ${(financialSummary.totals.sales.amount - 
                          financialSummary.totals.expenses.amount).toLocaleString()}
                     </span>
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-4">
+                    ℹ️ <strong>Dinero cobrado:</strong> ${(financialSummary.totals.sales.paidAmount + financialSummary.totals.collections.amount).toLocaleString()} de ${financialSummary.totals.sales.amount.toLocaleString()}
+                    <div className="text-xs mt-1">
+                      (Ventas de contado: ${financialSummary.totals.sales.paidAmount.toLocaleString()} + Cobros de crédito: ${financialSummary.totals.collections.amount.toLocaleString()})
+                    </div>
                   </div>
                 </div>
               </CardContent>

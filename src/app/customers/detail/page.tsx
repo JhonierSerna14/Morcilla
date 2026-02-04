@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, User, Phone, MapPin, ShoppingCart, CreditCard, Calendar, DollarSign } from "lucide-react"
 import { formatBatchName, formatCurrency } from "@/lib/batch-utils"
+import Link from "next/link"
 
 interface Customer {
   id: string
@@ -189,6 +190,21 @@ function CustomerDetailContent() {
                       <div className="text-sm text-accent">✅ Total pagado</div>
                     </div>
                   </div>
+                  
+                  {/* Botón Cobrar */}
+                  {customer.totalDebt > 0 && (
+                    <div className="mt-4">
+                      <Link href={`/collections?customerId=${customer.id}&customerName=${encodeURIComponent(customer.name)}&amount=${customer.totalDebt}`}>
+                        <Button 
+                          className="w-full py-6 text-lg"
+                          size="lg"
+                        >
+                          <CreditCard className="w-5 h-5 mr-2" />
+                          💳 Cobrar Deuda
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
                 </div>
 
                 {/* Quick Stats */}

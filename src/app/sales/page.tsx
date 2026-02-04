@@ -448,19 +448,19 @@ export default function SalesPage() {
               )}
 
               {/* Submit Button */}
-              <div className="flex justify-end space-x-3">
+              <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => window.history.back()}
-                  className="text-base h-12"
+                  className="text-base h-12 w-full sm:w-auto"
                 >
                   ❌ Cancelar
                 </Button>
                 <Button
                   type="submit"
                   disabled={saving || !selectedCustomer}
-                  className="text-base h-12 px-8"
+                  className="text-base h-12 w-full sm:w-auto sm:px-8"
                 >
                   {saving ? "⏳ Guardando..." : "✅ Registrar Venta"}
                 </Button>

@@ -287,49 +287,6 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
               </div>
-
-              {/* Clientes que deben */}
-              {batchDetails.recentDebtors.length > 0 && (
-                <Card className="shadow-md">
-                  <CardHeader>
-                    <CardTitle className="flex items-center text-foreground text-xl">
-                      <AlertCircle className="w-6 h-6 mr-3 text-secondary" />
-                      Top 5 Clientes con Deuda
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {batchDetails.recentDebtors.map((debtor) => (
-                        <div key={debtor.customerId} className="flex justify-between items-center p-4 bg-secondary/20 border-2 border-secondary/40 rounded-lg hover:shadow-md transition-shadow">
-                              <div>
-                                <Link href={`/customers/detail?id=${debtor.customerId}`} className="font-semibold text-foreground text-base hover:underline">
-                                  {debtor.customerName}
-                                </Link>
-                                <div className="text-base text-muted-foreground mt-1">
-                                  📅 Última venta: {new Date(debtor.lastSaleDate).toLocaleDateString('es-CO')}
-                                </div>
-                              </div>
-                          <div className="text-right">
-                            <div className="font-bold text-secondary text-2xl">
-                              ${debtor.totalDebt.toLocaleString()}
-                            </div>
-                            <div className="mt-3 pt-3 border-t border-border">
-                              <div className="flex gap-2 justify-end">
-                                <Button size="lg" variant="success" onClick={() => { setPayingCustomer({ id: debtor.customerId, name: debtor.customerName }); setPaymentForm({ amount: debtor.totalDebt, paymentMethod: 'EFECTIVO', notes: '' }) }}>
-                                  <CreditCard className="w-4 h-4 mr-1" /> Cobrar
-                                </Button>
-                                <Button asChild size="lg" variant="outline">
-                                  <Link href={`/customers/detail?id=${debtor.customerId}`}>Ver</Link>
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
             </div>
           ) : activeBatch && metrics ? (
             <Card className="gradient-primary text-primary-foreground mb-6 shadow-lg">
@@ -383,68 +340,6 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           )}
-        </div>
-
-        {/* Acciones Rápidas */}
-        <div>
-          <h2 className="text-2xl font-bold text-foreground mb-5">Acciones Rápidas</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            <Link href="/sales">
-              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer hover:-translate-y-1 h-full">
-                <CardContent className="flex flex-col items-center justify-center p-6">
-                  <div className="bg-accent text-accent-foreground p-4 rounded-full mb-4 w-14 h-14 flex items-center justify-center text-2xl">
-                    📝
-                  </div>
-                  <div className="text-center">
-                    <div className="font-bold text-foreground text-base">Nueva Venta</div>
-                    <div className="text-sm text-muted-foreground mt-1">Registrar venta</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/collections">
-              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer hover:-translate-y-1 h-full">
-                <CardContent className="flex flex-col items-center justify-center p-6">
-                  <div className="bg-primary text-primary-foreground p-4 rounded-full mb-4 w-14 h-14 flex items-center justify-center text-2xl">
-                    💸
-                  </div>
-                  <div className="text-center">
-                    <div className="font-bold text-foreground text-base">Cobrar</div>
-                    <div className="text-sm text-muted-foreground mt-1">Registrar cobro</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/customers">
-              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer hover:-translate-y-1 h-full">
-                <CardContent className="flex flex-col items-center justify-center p-6">
-                  <div className="bg-secondary text-secondary-foreground p-4 rounded-full mb-4 w-14 h-14 flex items-center justify-center text-2xl">
-                    👥
-                  </div>
-                  <div className="text-center">
-                    <div className="font-bold text-foreground text-base">Clientes</div>
-                    <div className="text-sm text-muted-foreground mt-1">Gestionar clientes</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/cash">
-              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer hover:-translate-y-1 h-full">
-                <CardContent className="flex flex-col items-center justify-center p-6">
-                  <div className="bg-accent text-accent-foreground p-4 rounded-full mb-4 w-14 h-14 flex items-center justify-center text-2xl">
-                    💳
-                  </div>
-                  <div className="text-center">
-                    <div className="font-bold text-foreground text-base">Movimientos</div>
-                    <div className="text-sm text-muted-foreground mt-1">Gestionar dinero</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
         </div>
         {/* Modal de Cobro desde Dashboard */}
         {payingCustomer && (
