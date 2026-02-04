@@ -1,15 +1,200 @@
-import { Suspense } from "react"
-import CollectionsClient from "@/components/collections-client"
+"use client"
 
-export default function Page() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" /></div>}>
-      <CollectionsClient />
-    </Suspense>
-  )
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Search, DollarSign, Plus, CreditCard, AlertCircle, CheckCircle } from "lucide-react"
+
+interface Customer {
+  id: string
+  name: string
+  phone?: string
+  totalDebt: number
+  totalPaid: number
 }
 
-        // Reset form
+interface Collection {
+  id: string
+  amount: number
+  paymentMethod: string
+  collectionDate: string
+  notes?: string
+  customer: {
+    id: string
+    name: string
+  }
+  batch?: {
+    name: string
+  }
+}
+
+interface ActiveBatch {
+  id: string
+  name: string
+  number: number
+}
+
+export default function CollectionsClient() {
+  const searchParams = useSearchParams()
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [collections, setCollections] = useState<Collection[]>([])
+  const [activeBatch, setActiveBatch] = useState<ActiveBatch | null>(null)
+  const [searchCustomer, setSearchCustomer] = useState("")
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [showAllCustomers, setShowAllCustomers] = useState(false)
+
+  // Form states
+  const [collectionForm, setCollectionForm] = useState({
+    amount: "",
+    paymentMethod: "EFECTIVO",
+    notes: ""
+  })
+
+  useEffect(() => {
+    Promise.all([
+      fetchCustomersWithDebt(),
+      fetchActiveBatch(),
+      fetchCollections()
+    ]).finally(() => setLoading(false))
+  }, [])
+
+  // Pre-fill from URL
+  useEffect(() => {
+    const customerId = searchParams.get('customerId')
+    const customerName = searchParams.get('customerName')
+    const amount = searchParams.get('amount')
+
+    if (customerId && customerName) {
+      const customer = customers.find(c => c.id === customerId)
+      if (customer) {
+        setSelectedCustomer(customer)
+        setSearchCustomer(customerName)
+        setCollectionForm({
+          amount: amount || customer.totalDebt.toString(),
+          paymentMethod: "EFECTIVO",
+          notes: ""
+        })
+      } else if (customerName) {
+        setSearchCustomer(customerName)
+        setCollectionForm({
+          amount: amount || "",
+          paymentMethod: "EFECTIVO",
+          notes: ""
+        })
+      }
+    }
+  }, [searchParams, customers])
+
+  useEffect(() => {
+    if (searchCustomer.trim()) {
+      const filtered = customers.filter(customer =>
+        customer.name.toLowerCase().includes(searchCustomer.toLowerCase()) ||
+        (customer.phone && customer.phone.includes(searchCustomer))
+      )
+      setFilteredCustomers(filtered)
+    } else {
+      setFilteredCustomers([])
+    }
+  }, [searchCustomer, customers])
+
+  const fetchCustomersWithDebt = async () => {
+    try {
+      const response = await fetch("/api/customers")
+      const data = await response.json()
+      const customersWithDebt = data.filter((c: Customer) => c.totalDebt > 0)
+      setCustomers(customersWithDebt)
+    } catch (error) {
+      console.error("Error fetching customers:", error)
+    }
+  }
+
+  const fetchActiveBatch = async () => {
+    try {
+      const response = await fetch("/api/batches/active")
+      const data = await response.json()
+      setActiveBatch(data.activeBatch)
+    } catch (error) {
+      console.error("Error fetching active batch:", error)
+    }
+  }
+
+  const fetchCollections = async () => {
+    try {
+      const response = await fetch("/api/collections")
+      const data = await response.json()
+      setCollections(data)
+    } catch (error) {
+      console.error("Error fetching collections:", error)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!selectedCustomer) {
+      alert("⚠️ Primero debes buscar y seleccionar un cliente")
+      return
+    }
+
+    if (selectedCustomer.totalDebt === 0) {
+      alert("ℹ️ Este cliente no tiene deudas pendientes")
+      return
+    }
+
+    const amount = parseFloat(collectionForm.amount)
+
+    if (!amount || amount <= 0) {
+      alert("❌ Por favor ingresa un monto válido (mayor a 0)")
+      return
+    }
+
+    if (amount > selectedCustomer.totalDebt) {
+      alert(`❌ El monto no puede ser mayor a la deuda del cliente\n\n` +
+            `Deuda actual: $${selectedCustomer.totalDebt.toLocaleString()}\n` +
+            `Monto ingresado: $${amount.toLocaleString()}`)
+      return
+    }
+
+    if (amount > 500000) {
+      const confirm = window.confirm(`⚠️ Estás registrando un cobro de $${amount.toLocaleString()}. ¿Estás seguro?`)
+      if (!confirm) return
+    }
+
+    setSaving(true)
+
+    try {
+      const response = await fetch("/api/collections", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customerId: selectedCustomer.id,
+          amount: amount,
+          paymentMethod: collectionForm.paymentMethod,
+          batchId: activeBatch?.id || null,
+          notes: collectionForm.notes,
+        }),
+      })
+
+      if (response.ok) {
+        setSuccess(true)
+        setTimeout(() => setSuccess(false), 3000)
+
+        const remainingDebt = selectedCustomer.totalDebt - amount
+        alert(`✅ ¡Cobro registrado exitosamente!\n\n` +
+              `Cliente: ${selectedCustomer.name}\n` +
+              `Monto cobrado: $${amount.toLocaleString()}\n` +
+              `Método: ${collectionForm.paymentMethod}\n` +
+              `${remainingDebt > 0 ? `Deuda restante: $${remainingDebt.toLocaleString()}` : '🎉 Cliente al día!'}`)
+
         setCollectionForm({
           amount: "",
           paymentMethod: "EFECTIVO",
@@ -18,7 +203,6 @@ export default function Page() {
         setSelectedCustomer(null)
         setSearchCustomer("")
 
-        // Refresh data
         fetchCustomersWithDebt()
         fetchCollections()
       } else {
@@ -46,7 +230,6 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="bg-card border-b border-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-4">
@@ -59,7 +242,6 @@ export default function Page() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Success Message */}
         {success && (
           <Card className="border-accent bg-accent/10">
             <CardContent className="flex items-center justify-center py-4">
@@ -69,7 +251,6 @@ export default function Page() {
           </Card>
         )}
 
-        {/* Registro de Cobro */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center text-foreground">
@@ -83,7 +264,6 @@ export default function Page() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Buscar Cliente */}
             <div className="space-y-2">
               <label className="text-base font-semibold text-foreground">👤 Buscar Cliente con Deuda</label>
               <div className="relative">
@@ -97,8 +277,7 @@ export default function Page() {
                   aria-expanded={filteredCustomers.length > 0}
                 />
               </div>
-              
-              {/* Lista de clientes filtrados */}
+
               {filteredCustomers.length > 0 && (
                 <div role="listbox" aria-label="Resultados de búsqueda de clientes" className="border-2 border-border rounded-lg bg-background max-h-40 overflow-y-auto">
                   {filteredCustomers.map((customer) => (
@@ -153,7 +332,6 @@ export default function Page() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Monto */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Monto a Cobrar</label>
                 <Input
@@ -167,7 +345,6 @@ export default function Page() {
                 />
               </div>
 
-              {/* Método de Pago */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Método de Pago</label>
                 <select
@@ -181,7 +358,6 @@ export default function Page() {
                 </select>
               </div>
 
-              {/* Notas */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Notas (Opcional)</label>
                 <Input
@@ -212,7 +388,6 @@ export default function Page() {
           </CardContent>
         </Card>
 
-        {/* Resumen de Clientes con Deuda */}
         <Card>
           <CardHeader>
             <CardTitle>👥 Clientes con Deudas Pendientes</CardTitle>
@@ -259,7 +434,7 @@ export default function Page() {
                     </button>
                   ))}
                 </div>
-                
+
                 {customers.length > 10 && !showAllCustomers && (
                   <Button 
                     onClick={() => setShowAllCustomers(true)}
@@ -269,7 +444,7 @@ export default function Page() {
                     👁️ Ver Más ({customers.length - 10} clientes más)
                   </Button>
                 )}
-                
+
                 {showAllCustomers && (
                   <Button 
                     onClick={() => setShowAllCustomers(false)}
