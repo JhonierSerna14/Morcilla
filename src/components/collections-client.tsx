@@ -277,7 +277,6 @@ export default function CollectionsClient() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center text-foreground">
-              <DollarSign className="w-5 h-5 mr-2" />
               💰 Registrar Cobro
             </CardTitle>
             <CardDescription>

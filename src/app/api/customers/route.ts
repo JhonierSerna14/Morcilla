@@ -13,6 +13,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get("search") || ""
     const onlyWithDebt = searchParams.get("onlyWithDebt") === "true"
+    const onlyPaid = searchParams.get("onlyPaid") === "true"
     const customerId = searchParams.get("id")
 
     // Si se solicita un cliente específico por ID
@@ -58,6 +59,10 @@ export async function GET(request: Request) {
           } : {},
           onlyWithDebt ? {
             totalDebt: { gt: 0 }
+          } : {},
+          onlyPaid ? {
+            totalDebt: 0,
+            totalPaid: { gt: 0 }
           } : {}
         ]
       },

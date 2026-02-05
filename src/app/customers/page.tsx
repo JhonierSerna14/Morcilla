@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, Search, Users, Phone, MapPin, DollarSign } from "lucide-react"
+import { Plus, Search, Users, Phone, MapPin, DollarSign, AlertCircle } from "lucide-react"
 
 interface Customer {
   id: string
@@ -20,10 +20,12 @@ interface Customer {
 
 export default function CustomersPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [customers, setCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
-  const [showOnlyWithDebt, setShowOnlyWithDebt] = useState(false)
+  const [showOnlyWithDebt, setShowOnlyWithDebt] = useState(searchParams.get('onlyWithDebt') === 'true')
+  const [showOnlyPaid, setShowOnlyPaid] = useState(searchParams.get('onlyPaid') === 'true')
   const [showCreateForm, setShowCreateForm] = useState(false)
   
   // Form states
@@ -35,13 +37,14 @@ export default function CustomersPage() {
 
   useEffect(() => {
     fetchCustomers()
-  }, [search, showOnlyWithDebt])
+  }, [search, showOnlyWithDebt, showOnlyPaid])
 
   const fetchCustomers = async () => {
     try {
       const params = new URLSearchParams()
       if (search) params.append("search", search)
       if (showOnlyWithDebt) params.append("onlyWithDebt", "true")
+      if (showOnlyPaid) params.append("onlyPaid", "true")
       
       const response = await fetch(`/api/customers?${params}`)
       const data = await response.json()
@@ -140,16 +143,29 @@ export default function CustomersPage() {
               className="pl-12 text-base"
             />
           </div>
-          <Button
-            variant={showOnlyWithDebt ? "default" : "outline"}
-            onClick={() => setShowOnlyWithDebt(!showOnlyWithDebt)}
-            size="lg"
-            className="text-base whitespace-nowrap"
-          >
-            <DollarSign className="w-5 h-5 mr-2" />
-            {showOnlyWithDebt ? "👥 Ver Todos" : "⏳ Solo Deudores"}
-          </Button>
         </div>
+
+        {/* Active Filter Indicator */}
+        {(showOnlyWithDebt || showOnlyPaid) && (
+          <div className="mb-6 flex items-center justify-between bg-primary/5 p-4 rounded-lg border border-primary/20">
+            <div className="flex items-center text-primary font-medium">
+              <AlertCircle className="w-5 h-5 mr-2" />
+              {showOnlyWithDebt ? "Mostrando solo clientes con deuda" : "Mostrando solo clientes al día"}
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => {
+                setShowOnlyWithDebt(false)
+                setShowOnlyPaid(false)
+                router.replace('/customers')
+              }}
+              className="text-primary hover:text-primary/80"
+            >
+              Ver todos los clientes
+            </Button>
+          </div>
+        )}
 
         {/* Create Customer Form */}
         {showCreateForm && (

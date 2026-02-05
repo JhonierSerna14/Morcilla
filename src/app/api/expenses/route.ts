@@ -57,9 +57,25 @@ export async function POST(request: Request) {
     } = await request.json()
 
     // Validaciones
+    const validConcepts = [
+      "Retiro Ganancias",
+      "Materia Prima",
+      "Gasolina",
+      "Empaques",
+      "Herramientas",
+      "Otros"
+    ]
+
     if (!amount || !concept) {
       return NextResponse.json(
         { error: "Faltan campos obligatorios (monto y concepto)" }, 
+        { status: 400 }
+      )
+    }
+
+    if (!validConcepts.includes(concept)) {
+      return NextResponse.json(
+        { error: `Concepto no válido: ${concept}` },
         { status: 400 }
       )
     }

@@ -86,10 +86,11 @@ export async function GET() {
     })
 
     // Filtrar solo los que tienen deuda pendiente
-    const debtors = Array.from(customerDebts.entries())
+    const debtorsList = Array.from(customerDebts.entries())
       .filter(([_, debt]) => debt > 0)
       .map(([customerId, debt]) => {
-        const customer = activeBatch.sales.find((s: any) => s.customerId === customerId)?.customer
+        const customer = activeBatch.sales.find((s: any) => s.customerId === customerId)?.customer ||
+                         activeBatch.collections.find((c: any) => c.customerId === customerId)?.customer
         const lastSale = activeBatch.sales
           .filter((s: any) => s.customerId === customerId)
           .sort((a: any, b: any) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime())[0]
@@ -102,9 +103,8 @@ export async function GET() {
         }
       })
       .sort((a, b) => b.totalDebt - a.totalDebt)
-      .slice(0, 5) // Top 5 deudores
 
-    const debtorsCount = debtors.length
+    const debtorsCount = debtorsList.length
     const paidCustomersCount = totalCustomers - debtorsCount
 
     // Calcular dinero en poder de cada usuario
@@ -170,7 +170,7 @@ export async function GET() {
       debtorsCount,
       paidCustomersCount,
       cashHolders,
-      recentDebtors: debtors
+      recentDebtors: debtorsList.slice(0, 5) // Mostramos solo los 5 principales en el detalle
     }
 
     return NextResponse.json({ 

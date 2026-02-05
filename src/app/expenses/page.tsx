@@ -279,14 +279,11 @@ export default function ExpensesPage() {
                   required
                 >
                   <option value="">Selecciona el concepto...</option>
+                  <option value="Retiro Ganancias">💰 Retiro Ganancias</option>
                   <option value="Materia Prima">🥩 Materia Prima</option>
-                  <option value="Transporte">🚛 Transporte</option>
-                  <option value="Gas">⛽ Gas</option>
-                  <option value="Servicios Públicos">💡 Servicios Públicos</option>
+                  <option value="Gasolina">⛽ Gasolina</option>
                   <option value="Empaques">📦 Empaques</option>
                   <option value="Herramientas">🔧 Herramientas</option>
-                  <option value="Mantenimiento">⚙️ Mantenimiento</option>
-                  <option value="Alimentación">🍽️ Alimentación</option>
                   <option value="Otros">📝 Otros</option>
                 </select>
               </div>
