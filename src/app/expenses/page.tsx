@@ -40,6 +40,13 @@ export default function ExpensesPage() {
     expenseDate: new Date().toISOString().split('T')[0]
   })
 
+  // Helper: format numeric string with thousands separator (puntos)
+  const formatWithThousands = (raw: string) => {
+    const digits = (raw || "").toString().replace(/\D/g, "")
+    if (!digits) return ""
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+  }
+
   useEffect(() => {
     Promise.all([fetchExpenses(), fetchBalance()]).finally(() => setLoading(false))
   }, [])
@@ -255,12 +262,15 @@ export default function ExpensesPage() {
                 <div className="relative">
                   <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                   <Input
-                    type="number"
-                    placeholder="Ej: 50000"
-                    value={expenseForm.amount}
-                    onChange={(e) => setExpenseForm({...expenseForm, amount: e.target.value})}
-                    min="0"
-                    step="1000"
+                    type="text"
+                    placeholder="Ej: 50.000"
+                    value={formatWithThousands(expenseForm.amount)}
+                    onChange={(e) => {
+                      // Guardar solo dígitos internamente, mostrar con puntos
+                      const digits = e.target.value.replace(/\D/g, '')
+                      setExpenseForm({...expenseForm, amount: digits})
+                    }}
+                    inputMode="numeric"
                     required
                     className="pl-12 text-base"
                   />
@@ -291,12 +301,12 @@ export default function ExpensesPage() {
               {/* Descripción */}
               <div className="space-y-2">
                 <label className="text-base font-semibold text-foreground">
-                  📋 Descripción Detallada
+                  🗒️ Descripción Adicional
                 </label>
                 <div className="relative">
                   <FileText className="absolute left-4 top-4 text-muted-foreground w-5 h-5" />
                   <textarea
-                    placeholder="Describe el gasto en detalle..."
+                    placeholder="Información adicional sobre el gasto..."
                     value={expenseForm.description}
                     onChange={(e) => setExpenseForm({...expenseForm, description: e.target.value})}
                     rows={3}

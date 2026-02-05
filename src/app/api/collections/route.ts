@@ -51,8 +51,7 @@ export async function POST(request: Request) {
       customerId, 
       amount, 
       paymentMethod, 
-      batchId,
-      notes 
+      batchId
     } = await request.json()
 
     // Validaciones
@@ -100,7 +99,6 @@ export async function POST(request: Request) {
           batchId: batchId || null,
           amount: amount,
           paymentMethod,
-          notes: notes || null,
         },
         include: {
           customer: { select: { id: true, name: true } },

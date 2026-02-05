@@ -52,8 +52,7 @@ export async function POST(request: Request) {
       pounds, 
       pricePerPound, 
       paymentMethod, 
-      paymentStatus, 
-      notes 
+      paymentStatus
     } = await request.json()
 
     // Validaciones
@@ -113,7 +112,6 @@ export async function POST(request: Request) {
         pricePerPound: parseFloat(pricePerPound),
         totalAmount: totalAmount,
         paymentStatus: paymentStatus || "PENDING",
-        notes: notes || null,
         customer: {
           connect: { id: customerId }
         },

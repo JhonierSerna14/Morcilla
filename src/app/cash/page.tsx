@@ -33,9 +33,15 @@ export default function CashPage() {
     toUserId: "",
     amount: "",
     paymentMethod: "EFECTIVO",
-    concept: "",
-    notes: ""
+    concept: ""
   })
+
+  // Helper: format numeric string with thousands separator (puntos)
+  const formatWithThousands = (raw: string) => {
+    const digits = (raw || "").toString().replace(/\D/g, "")
+    if (!digits) return ""
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+  }
 
   useEffect(() => {
     Promise.all([fetchUsers(), fetchBalance(), fetchMovements()]).finally(() => setLoading(false))
@@ -128,14 +134,13 @@ export default function CashPage() {
           amount: amount,
           paymentMethod: transferForm.paymentMethod,
           concept: transferForm.concept.trim(),
-          notes: transferForm.notes.trim() || null,
         }),
       })
 
       if (response.ok) {
         const toUser = users.find(u => u.id === transferForm.toUserId)
         alert(` Transferencia registrada: $${amount.toLocaleString()} para ${toUser?.name}`)
-        setTransferForm({ toUserId: "", amount: "", paymentMethod: "EFECTIVO", concept: "", notes: "" })
+        setTransferForm({ toUserId: "", amount: "", paymentMethod: "EFECTIVO", concept: "" })
       } else {
         const error = await response.json()
         alert(` Error: ${error.error || "Error desconocido"}`)
@@ -222,14 +227,17 @@ export default function CashPage() {
                   <div className="relative">
                     <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
-                      type="number"
-                      step="1000"
-                      min="1000"
-                      placeholder="50000"
-                      value={transferForm.amount}
-                      onChange={(e) => setTransferForm({ ...transferForm, amount: e.target.value })}
-                      className="pl-12 text-base"
+                      type="text"
+                      placeholder="Ej: 50.000"
+                      value={formatWithThousands(transferForm.amount)}
+                      onChange={(e) => {
+                        // Guardar solo dígitos internamente, mostrar con puntos
+                        const digits = e.target.value.replace(/\D/g, '')
+                        setTransferForm({ ...transferForm, amount: digits })
+                      }}
+                      inputMode="numeric"
                       required
+                      className="pl-12 text-base"
                     />
                   </div>
                 </div>
@@ -259,16 +267,6 @@ export default function CashPage() {
                     required
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-base font-semibold text-foreground mb-2">📌 Notas adicionales</label>
-                <Input
-                  placeholder="Información adicional (opcional)"
-                  value={transferForm.notes}
-                  onChange={(e) => setTransferForm({ ...transferForm, notes: e.target.value })}
-                  className="text-base"
-                />
               </div>
 
               <div className="flex justify-end pt-4">

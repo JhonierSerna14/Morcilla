@@ -47,8 +47,7 @@ export async function POST(request: Request) {
       toUserId, 
       amount, 
       paymentMethod, 
-      concept, 
-      notes 
+      concept
     } = await request.json()
 
     // Validaciones
@@ -133,8 +132,7 @@ export async function POST(request: Request) {
           toUserId,
           amount,
           paymentMethod,
-          concept,
-          notes: notes || null
+          concept
         },
         include: {
           fromUser: { select: { name: true } },

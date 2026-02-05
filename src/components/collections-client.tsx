@@ -52,13 +52,11 @@ export default function CollectionsClient() {
   const resultsRef = useRef<HTMLDivElement | null>(null)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [showAllCustomers, setShowAllCustomers] = useState(false)
 
   // Form states
   const [collectionForm, setCollectionForm] = useState({
     amount: "",
-    paymentMethod: "EFECTIVO",
-    notes: ""
+    paymentMethod: "EFECTIVO"
   })
 
   // Helper: format raw digits into thousands separated with dots for display
@@ -91,15 +89,13 @@ export default function CollectionsClient() {
         setCollectionForm({
           // store raw digits only, remove any separators
           amount: (amount || customer.totalDebt.toString()).toString().replace(/\D/g, ''),
-          paymentMethod: "EFECTIVO",
-          notes: ""
+          paymentMethod: "EFECTIVO"
         })
       } else if (customerName) {
         setSearchCustomer(customerName)
         setCollectionForm({
           amount: (amount || "").toString().replace(/\D/g, ''),
-          paymentMethod: "EFECTIVO",
-          notes: ""
+          paymentMethod: "EFECTIVO"
         })
       }
     }
@@ -203,7 +199,6 @@ export default function CollectionsClient() {
           amount: amount,
           paymentMethod: collectionForm.paymentMethod,
           batchId: activeBatch?.id || null,
-          notes: collectionForm.notes,
         }),
       })
 
@@ -220,8 +215,7 @@ export default function CollectionsClient() {
 
         setCollectionForm({
           amount: "",
-          paymentMethod: "EFECTIVO",
-          notes: ""
+          paymentMethod: "EFECTIVO"
         })
         setSelectedCustomer(null)
         setSearchCustomer("")
@@ -390,15 +384,6 @@ export default function CollectionsClient() {
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Notas (Opcional)</label>
-                <Input
-                  placeholder="Información adicional..."
-                  value={collectionForm.notes}
-                  onChange={(e) => setCollectionForm({...collectionForm, notes: e.target.value})}
-                />
-              </div>
-
               <Button 
                 type="submit" 
                 disabled={!selectedCustomer || saving}
@@ -436,7 +421,7 @@ export default function CollectionsClient() {
             ) : (
               <div className="space-y-4">
                 <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {customers.slice(0, showAllCustomers ? customers.length : 10).map((customer) => (
+                  {customers.map((customer) => (
                     <button
                       key={customer.id}
                       onClick={() => {
@@ -445,8 +430,7 @@ export default function CollectionsClient() {
                         setSearchCustomer("")
                         setCollectionForm({
                           amount: customer.totalDebt.toString(),
-                          paymentMethod: "EFECTIVO",
-                          notes: ""
+                          paymentMethod: "EFECTIVO"
                         })
                         window.scrollTo({ top: 0, behavior: 'smooth' })
                       }}
@@ -468,25 +452,9 @@ export default function CollectionsClient() {
                   ))}
                 </div>
 
-                {customers.length > 10 && !showAllCustomers && (
-                  <Button 
-                    onClick={() => setShowAllCustomers(true)}
-                    variant="outline"
-                    className="w-full text-base"
-                  >
-                    👁️ Ver Más ({customers.length - 10} clientes más)
-                  </Button>
-                )}
 
-                {showAllCustomers && (
-                  <Button 
-                    onClick={() => setShowAllCustomers(false)}
-                    variant="outline"
-                    className="w-full text-base"
-                  >
-                    👁️ Ver Menos
-                  </Button>
-                )}
+
+
               </div>
             )}
           </CardContent>

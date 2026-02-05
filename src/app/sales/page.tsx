@@ -42,8 +42,7 @@ export default function SalesPage() {
     pounds: "",
     pricePerPound: "12000", // Precio por defecto (solo dígitos internamente)
     paymentMethod: "EFECTIVO",
-    paymentStatus: "PAID",
-    notes: ""
+    paymentStatus: "PAID"
   })
 
   // Helper: format numeric string with thousands separator (puntos)
@@ -164,7 +163,6 @@ export default function SalesPage() {
           pricePerPound,
           paymentMethod: saleForm.paymentMethod,
           paymentStatus: saleForm.paymentStatus,
-          notes: saleForm.notes || null,
         }),
       })
 
@@ -178,8 +176,7 @@ export default function SalesPage() {
           pounds: "",
           pricePerPound: "12000",
           paymentMethod: "EFECTIVO",
-          paymentStatus: "PAID",
-          notes: ""
+          paymentStatus: "PAID"
         })
         setSelectedCustomer(null)
         setSearchCustomer("")
@@ -433,21 +430,6 @@ export default function SalesPage() {
                   </select>
                 </div>
               )}
-
-              {/* Notes */}
-              <div>
-                <label className="block text-base font-semibold text-foreground mb-2">
-                  📝 Notas (opcional)
-                </label>
-                <textarea
-                  placeholder="Ej: Cliente pidió que le deje 1 libra para la próxima tanda..."
-                  value={saleForm.notes}
-                  onChange={(e) =>
-                    setSaleForm({ ...saleForm, notes: e.target.value })
-                  }
-                  className="w-full h-24 px-4 py-2 border-2 border-border rounded-lg bg-background text-foreground text-base resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
-                />
-              </div>
 
               {/* Total Calculator */}
               {saleForm.pounds && saleForm.pricePerPound && (
