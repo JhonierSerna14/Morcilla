@@ -374,7 +374,6 @@ export default function CollectionsClient() {
                     setCollectionForm({...collectionForm, amount: digits})
                   }}
                   inputMode="numeric"
-                  pattern="[0-9]*"
                   required
                 />
               </div>

@@ -384,7 +384,6 @@ export default function SalesPage() {
                         setSaleForm({ ...saleForm, pricePerPound: digits })
                       }}
                       inputMode="numeric"
-                      pattern="[0-9]*"
                       className="pl-12 text-base"
                       required
                     />

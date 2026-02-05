@@ -349,7 +349,7 @@ export default function BatchDetailPage() {
                         {formatCurrency(debtor.totalDebt)}
                       </div>
                       <Button
-                        onClick={() => startPayment(debtor)}
+                        onClick={() => router.push(`/collections?customerId=${debtor.customerId}&customerName=${encodeURIComponent(debtor.customerName)}&amount=${debtor.totalDebt}`)}
                         size="sm"
                         className="mt-2"
                       >

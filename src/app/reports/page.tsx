@@ -364,13 +364,6 @@ export default function ReportsPage() {
                       </div>
                       <div className="border-t-2 border-accent/30 pt-3"></div>
                       <div className="flex justify-between font-bold text-accent text-lg">
-                        <span>Total Ingresos</span>
-                        <span>
-                          ${financialSummary.totals.sales.amount.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-2 italic">
-                        ℹ️ Los cobros reducen la deuda, no son ingresos adicionales
                       </div>
                     </div>
                   </div>
