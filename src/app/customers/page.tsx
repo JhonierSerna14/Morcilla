@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,6 +28,9 @@ function CustomersContent() {
   const [showOnlyPaid, setShowOnlyPaid] = useState(searchParams.get('onlyPaid') === 'true')
   const [showCreateForm, setShowCreateForm] = useState(false)
   
+  // Refs
+  const customersListRef = useRef<HTMLDivElement | null>(null)
+
   // Form states
   const [newCustomer, setNewCustomer] = useState({
     name: "",
@@ -38,6 +41,16 @@ function CustomersContent() {
   useEffect(() => {
     fetchCustomers()
   }, [search, showOnlyWithDebt, showOnlyPaid])
+
+  // Scroll to customers list when opened from dashboard with onlyWithDebt filter
+  useEffect(() => {
+    if (showOnlyWithDebt) {
+      // Allow time for list to render
+      setTimeout(() => {
+        customersListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 150)
+    }
+  }, [showOnlyWithDebt, customers])
 
   const fetchCustomers = async () => {
     try {
@@ -124,7 +137,6 @@ function CustomersContent() {
               </p>
             </div>
             <Button onClick={() => setShowCreateForm(true)} size="lg" className="text-base whitespace-nowrap">
-              <Plus className="w-5 h-5 mr-2" />
               ➕ Nuevo Cliente
             </Button>
           </div>
@@ -261,7 +273,7 @@ function CustomersContent() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div ref={customersListRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {customers.map((customer) => (
               <Card key={customer.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
@@ -310,7 +322,7 @@ function CustomersContent() {
                     </div>
                   </div>
 
-                  <div className="mt-4">
+                  <div className="mt-4 space-y-2">
                     <Button 
                       className="w-full text-base" 
                       size="sm"
@@ -318,6 +330,24 @@ function CustomersContent() {
                     >
                       👁️ Ver Detalle
                     </Button>
+
+                    {Number(customer.totalDebt) > 0 && (
+                      <Button
+                        className="w-full text-base"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const params = new URLSearchParams({
+                            customerId: customer.id,
+                            customerName: customer.name,
+                            amount: Math.floor(Number(customer.totalDebt)).toString()
+                          })
+                          router.push(`/collections?${params.toString()}`)
+                        }}
+                      >
+                        💸 Cobrar
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
