@@ -331,7 +331,7 @@ function CustomersContent() {
                       👁️ Ver Detalle
                     </Button>
 
-                    {Number(customer.totalDebt) > 0 && (
+                    {showOnlyWithDebt && Number(customer.totalDebt) > 0 && (
                       <Button
                         className="w-full text-base"
                         size="sm"
