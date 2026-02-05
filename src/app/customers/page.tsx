@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,7 +18,7 @@ interface Customer {
   collections: any[]
 }
 
-export default function CustomersPage() {
+function CustomersContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -326,5 +326,20 @@ export default function CustomersPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function CustomersPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground text-base">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <CustomersContent />
+    </Suspense>
   )
 }
