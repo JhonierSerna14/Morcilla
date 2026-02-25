@@ -206,13 +206,14 @@ model Transfer {
 
 // Modelo de Gastos/Egresos
 model Expense {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  amount      Float
-  concept     String   // Concepto obligatorio
-  description String?
-  expenseDate DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  amount        Float
+  concept       String        // Concepto obligatorio
+  description   String?
+  paymentMethod PaymentMethod @default(EFECTIVO) // Efectivo o Nequi
+  expenseDate   DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   // Relaciones
   userId String @db.ObjectId

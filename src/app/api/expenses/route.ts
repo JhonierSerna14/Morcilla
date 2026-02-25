@@ -53,6 +53,7 @@ export async function POST(request: Request) {
       amount, 
       concept, 
       description,
+      paymentMethod,
       expenseDate
     } = await request.json()
 
@@ -66,6 +67,8 @@ export async function POST(request: Request) {
       "Otros"
     ]
 
+    const validMethods = ["EFECTIVO", "NEQUI"]
+
     if (!amount || !concept) {
       return NextResponse.json(
         { error: "Faltan campos obligatorios (monto y concepto)" }, 
@@ -76,6 +79,13 @@ export async function POST(request: Request) {
     if (!validConcepts.includes(concept)) {
       return NextResponse.json(
         { error: `Concepto no válido: ${concept}` },
+        { status: 400 }
+      )
+    }
+
+    if (!paymentMethod || !validMethods.includes(paymentMethod)) {
+      return NextResponse.json(
+        { error: "Método de pago no válido. Debe ser EFECTIVO o NEQUI" },
         { status: 400 }
       )
     }
@@ -96,6 +106,7 @@ export async function POST(request: Request) {
           amount: amount,
           concept,
           description: description || null,
+          paymentMethod: paymentMethod,
           expenseDate: expenseDate ? new Date(expenseDate) : new Date(),
         },
         include: {
@@ -109,7 +120,7 @@ export async function POST(request: Request) {
           userId: session.user.id,
           movementType: 'EXPENSE',
           amount: amount,
-          paymentMethod: 'EFECTIVO', // Por defecto efectivo para gastos
+          paymentMethod: paymentMethod,
           description: `Gasto: ${concept}${description ? ` - ${description}` : ''}`,
           movementDate: expenseDate ? new Date(expenseDate) : new Date(),
         }

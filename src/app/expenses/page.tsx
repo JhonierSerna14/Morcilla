@@ -11,6 +11,7 @@ interface Expense {
   id: string
   amount: number
   concept: string
+  paymentMethod: string
   description?: string
   expenseDate: string
   user: {
@@ -37,6 +38,7 @@ export default function ExpensesPage() {
     amount: "",
     concept: "",
     description: "",
+    paymentMethod: "EFECTIVO",
     expenseDate: new Date().toISOString().split('T')[0]
   })
 
@@ -93,14 +95,17 @@ export default function ExpensesPage() {
       return
     }
 
-    // Validar que tenga suficiente dinero en efectivo
+    // Validar que tenga suficiente dinero 
     if (!balance) {
       alert("❌ No se pudo cargar tu saldo actual")
       return
     }
 
-    if (amount > balance.totalCash) {
-      alert(`❌ No tienes suficiente dinero en efectivo para este gasto.\nDisponible: ${formatCurrency(balance.totalCash)}\nRequerido: ${formatCurrency(amount)}`)
+    const selectedBalance = expenseForm.paymentMethod === "EFECTIVO" ? balance.totalCash : balance.totalNequi
+
+    if (amount > selectedBalance) {
+      const method = expenseForm.paymentMethod === "EFECTIVO" ? "en efectivo" : "en Nequi"
+      alert(`❌ No tienes suficiente dinero ${method} para este gasto.\nDisponible: ${formatCurrency(selectedBalance)}\nRequerido: ${formatCurrency(amount)}`)
       return
     }
 
@@ -122,6 +127,7 @@ export default function ExpensesPage() {
           amount: amount,
           concept: expenseForm.concept.trim(),
           description: expenseForm.description.trim() || null,
+          paymentMethod: expenseForm.paymentMethod,
           expenseDate: expenseForm.expenseDate,
         }),
       })
@@ -131,9 +137,11 @@ export default function ExpensesPage() {
         setTimeout(() => setSuccess(false), 3000)
 
         // Mostrar mensaje de éxito
+        const methodLabel = expenseForm.paymentMethod === "EFECTIVO" ? "💵 Efectivo" : "📱 Nequi"
         alert(`✅ ¡Gasto registrado exitosamente!\n\n` +
               `Concepto: ${expenseForm.concept.trim()}\n` +
               `Monto: $${amount.toLocaleString()}\n` +
+              `Método: ${methodLabel}\n` +
               `Fecha: ${new Date(expenseForm.expenseDate).toLocaleDateString()}`)
 
         // Reset form
@@ -141,6 +149,7 @@ export default function ExpensesPage() {
           amount: "",
           concept: "",
           description: "",
+          paymentMethod: "EFECTIVO",
           expenseDate: new Date().toISOString().split('T')[0]
         })
 
@@ -235,21 +244,39 @@ export default function ExpensesPage() {
                   💳 Mi Saldo Disponible para Gastos
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center bg-background/50 p-3 rounded border border-border">
-                    <p className="text-sm text-muted-foreground">Efectivo Disponible</p>
-                    <p className="text-lg font-bold text-primary mt-1">
-                      {formatCurrency(balance.totalCash)}
-                    </p>
-                  </div>
-                  <div className="text-center bg-background/50 p-3 rounded border border-border">
-                    <p className="text-sm text-muted-foreground">Total en Caja</p>
-                    <p className="text-lg font-bold text-primary mt-1">
-                      {formatCurrency(balance.grandTotal)}
-                    </p>
-                  </div>
+                  {expenseForm.paymentMethod === "EFECTIVO" ? (
+                    <div className="text-center bg-green-50 p-3 rounded border-2 border-green-600">
+                      <p className="text-sm text-muted-foreground">💵 Efectivo (Seleccionado)</p>
+                      <p className="text-lg font-bold mt-1 text-green-600">
+                        {formatCurrency(balance.totalCash)}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="text-center bg-background/50 p-3 rounded border-2 border-border">
+                      <p className="text-sm text-muted-foreground">💵 Efectivo</p>
+                      <p className="text-lg font-bold mt-1 text-foreground">
+                        {formatCurrency(balance.totalCash)}
+                      </p>
+                    </div>
+                  )}
+                  {expenseForm.paymentMethod === "NEQUI" ? (
+                    <div className="text-center bg-blue-50 p-3 rounded border-2 border-blue-600">
+                      <p className="text-sm text-muted-foreground">📱 Nequi (Seleccionado)</p>
+                      <p className="text-lg font-bold mt-1 text-blue-600">
+                        {formatCurrency(balance.totalNequi)}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="text-center bg-background/50 p-3 rounded border-2 border-border">
+                      <p className="text-sm text-muted-foreground">📱 Nequi</p>
+                      <p className="text-lg font-bold mt-1 text-foreground">
+                        {formatCurrency(balance.totalNequi)}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <p className="text-sm text-muted-foreground mt-3 text-center">
-                  Los gastos se descuentan del efectivo disponible
+                  El gasto se descargará del {expenseForm.paymentMethod === "EFECTIVO" ? "efectivo disponible" : "saldo en Nequi"}
                 </p>
               </div>
             )}
@@ -296,6 +323,49 @@ export default function ExpensesPage() {
                   <option value="Herramientas">🔧 Herramientas</option>
                   <option value="Otros">📝 Otros</option>
                 </select>
+              </div>
+
+              {/* Método de Pago */}
+              <div className="space-y-2">
+                <label className="text-base font-semibold text-foreground">
+                  💳 Método de Pago *
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {expenseForm.paymentMethod === "EFECTIVO" ? (
+                    <button
+                      type="button"
+                      onClick={() => setExpenseForm({...expenseForm, paymentMethod: "EFECTIVO"})}
+                      className="p-4 border-2 border-green-600 bg-green-600 text-white rounded-lg font-semibold transition-all"
+                    >
+                      ✅ 💵 Efectivo
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setExpenseForm({...expenseForm, paymentMethod: "EFECTIVO"})}
+                      className="p-4 border-2 border-border bg-background text-muted-foreground rounded-lg font-semibold transition-all hover:border-green-600 hover:bg-green-50"
+                    >
+                      💵 Efectivo
+                    </button>
+                  )}
+                  {expenseForm.paymentMethod === "NEQUI" ? (
+                    <button
+                      type="button"
+                      onClick={() => setExpenseForm({...expenseForm, paymentMethod: "NEQUI"})}
+                      className="p-4 border-2 border-blue-600 bg-blue-600 text-white rounded-lg font-semibold transition-all"
+                    >
+                      ✅ 📱 Nequi
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setExpenseForm({...expenseForm, paymentMethod: "NEQUI"})}
+                      className="p-4 border-2 border-border bg-background text-muted-foreground rounded-lg font-semibold transition-all hover:border-blue-600 hover:bg-blue-50"
+                    >
+                      📱 Nequi
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Descripción */}
@@ -382,11 +452,13 @@ export default function ExpensesPage() {
                       {expense.description && (
                         <p className="text-sm text-muted-foreground mb-2">{expense.description}</p>
                       )}
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4 mr-2" />
+                      <div className="flex items-center text-sm text-muted-foreground flex-wrap gap-2">
+                        <Calendar className="w-4 h-4" />
                         {new Date(expense.expenseDate).toLocaleDateString('es-CO')}
-                        <span className="mx-2">•</span>
+                        <span>•</span>
                         <span>👤 {expense.user.name}</span>
+                        <span>•</span>
+                        <span>{expense.paymentMethod === "EFECTIVO" ? "💵 Efectivo" : "📱 Nequi"}</span>
                       </div>
                     </div>
                     <div className="text-right ml-4">
