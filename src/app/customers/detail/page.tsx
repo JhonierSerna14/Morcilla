@@ -7,6 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, User, Phone, MapPin, ShoppingCart, CreditCard, Calendar, DollarSign } from "lucide-react"
 import { formatBatchName, formatCurrency } from "@/lib/batch-utils"
 import Link from "next/link"
+import { CustomerEditModal } from "@/components/customer-edit-modal"
+import { SaleEditModal } from "@/components/sale-edit-modal"
+import { Edit } from "lucide-react"
 
 interface Customer {
   id: string
@@ -56,6 +59,15 @@ function CustomerDetailContent() {
   const [sales, setSales] = useState<Sale[]>([])
   const [collections, setCollections] = useState<Collection[]>([])
   const [loading, setLoading] = useState(true)
+
+  const [isCustomerEditModalOpen, setIsCustomerEditModalOpen] = useState(false)
+  const [selectedSale, setSelectedSale] = useState<Sale | null>(null)
+  const [isSaleEditModalOpen, setIsSaleEditModalOpen] = useState(false)
+
+  const handleEditSale = (sale: Sale) => {
+    setSelectedSale(sale)
+    setIsSaleEditModalOpen(true)
+  }
 
   useEffect(() => {
     if (customerId) {
@@ -120,6 +132,19 @@ function CustomerDetailContent() {
 
   return (
     <div className="min-h-screen bg-background">
+      <CustomerEditModal 
+        customer={customer}
+        isOpen={isCustomerEditModalOpen}
+        onClose={() => setIsCustomerEditModalOpen(false)}
+        onSave={fetchCustomerData}
+      />
+      <SaleEditModal
+        sale={selectedSale}
+        isOpen={isSaleEditModalOpen}
+        onClose={() => setIsSaleEditModalOpen(false)}
+        onSave={fetchCustomerData}
+      />
+      
       {/* Header */}
       <div className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -149,9 +174,14 @@ function CustomerDetailContent() {
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center text-foreground">
-                  <User className="w-5 h-5 mr-2" />
-                  👤 Información del Cliente
+                <CardTitle className="flex justify-between items-center text-foreground">
+                  <div className="flex items-center">
+                    <User className="w-5 h-5 mr-2" />
+                    👤 Información del Cliente
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => setIsCustomerEditModalOpen(true)}>
+                    <Edit className="w-4 h-4" />
+                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -246,7 +276,17 @@ function CustomerDetailContent() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {sales.map((sale) => (
+                    {sales.map((sale) => {
+                       // Find if there are collections spanning this batch
+                       const batchCollections = collections.filter(c => c.batch?.id === sale.batch.id)
+                       const batchSales = sales.filter(s => s.batch.id === sale.batch.id && s.paymentStatus === 'PENDING')
+                       const totalBatchCollections = batchCollections.reduce((sum, c) => sum + c.amount, 0)
+                       const totalBatchDebt = batchSales.reduce((sum, s) => sum + s.totalAmount, 0)
+                       
+                       const isFullyCollected = totalBatchCollections >= totalBatchDebt && totalBatchCollections > 0
+                       const isPartiallyCollected = totalBatchCollections > 0 && totalBatchCollections < totalBatchDebt
+
+                       return (
                       <div key={sale.id} className="border-2 border-border rounded-lg p-4 hover:bg-primary/5 transition">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -261,6 +301,16 @@ function CustomerDetailContent() {
                               }`}>
                                 {sale.paymentStatus === 'PAID' ? '✅ Pagado' : '⏳ A crédito'}
                               </span>
+                              {sale.paymentStatus === 'PENDING' && isFullyCollected && (
+                                <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                  ✓ Cobrado
+                                </span>
+                              )}
+                              {sale.paymentStatus === 'PENDING' && isPartiallyCollected && (
+                                <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                  Abonado
+                                </span>
+                              )}
                             </div>
                             
                             <div className="text-sm text-muted-foreground space-y-1">
@@ -278,14 +328,18 @@ function CustomerDetailContent() {
                             </div>
                           </div>
                           
-                          <div className="text-right">
+                          <div className="flex flex-col items-end gap-2">
                             <div className="text-lg font-bold text-primary">
                               ${sale.totalAmount.toLocaleString()}
                             </div>
+                            <Button variant="outline" size="sm" onClick={() => handleEditSale({ ...(sale as any), customer: customer as any })}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Editar
+                            </Button>
                           </div>
                         </div>
                       </div>
-                    ))}
+                    )})}
                   </div>
                 )}
               </CardContent>

@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Package, Users, DollarSign, Clock, CheckCircle, AlertCircle } from "lucide-react"
+import { SaleEditModal } from "@/components/sale-edit-modal"
+import { ArrowLeft, Package, Users, DollarSign, Clock, CheckCircle, AlertCircle, Edit } from "lucide-react"
 
 interface BatchInfo {
   id: string
@@ -60,6 +61,14 @@ function BatchSalesContent() {
   const [sales, setSales] = useState<Sale[]>([])
   const [collections, setCollections] = useState<Collection[]>([])
   const [loading, setLoading] = useState(true)
+  
+  const [selectedSale, setSelectedSale] = useState<Sale | null>(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+
+  const handleEditSale = (sale: Sale) => {
+    setSelectedSale(sale)
+    setIsEditModalOpen(true)
+  }
 
   useEffect(() => {
     if (batchId) {
@@ -153,6 +162,12 @@ function BatchSalesContent() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SaleEditModal 
+        sale={selectedSale} 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={fetchBatchData} 
+      />
       {/* Header */}
       <div className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -340,14 +355,41 @@ function BatchSalesContent() {
                               <span className="font-semibold mr-2">{sale.customer.name}</span>
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                 sale.paymentStatus === 'PAID' 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : 'bg-red-100 text-red-800'
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
+                                  : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
                               }`}>
-                                {sale.paymentStatus === 'PAID' ? 'Pagado' : 'A crédito'}
+                                {sale.paymentStatus === 'PAID' ? '✓ Contado' : '⏳ Crédito'}
                               </span>
+                              {sale.paymentStatus === 'PENDING' && (
+                                (() => {
+                                  // Find collections for this customer in this batch
+                                  const customerCollections = collections.filter(c => c.customer.id === sale.customer.id)
+                                  const customerSales = creditSales.filter(s => s.customer.id === sale.customer.id)
+                                  
+                                  const totalCollectionAmount = customerCollections.reduce((sum, c) => sum + c.amount, 0)
+                                  const totalCreditSalesAmount = customerSales.reduce((sum, s) => sum + s.totalAmount, 0)
+                                  
+                                  if (totalCollectionAmount > 0) {
+                                    if (totalCollectionAmount >= totalCreditSalesAmount) {
+                                      return (
+                                        <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                          ✓ Cobrado
+                                        </span>
+                                      )
+                                    } else {
+                                      return (
+                                        <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                          Abonado
+                                        </span>
+                                      )
+                                    }
+                                  }
+                                  return null
+                                })()
+                              )}
                             </div>
                             
-                            <div className="text-sm text-gray-600 space-y-1">
+                            <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                               <div>{sale.pounds} libras × ${sale.pricePerPound.toLocaleString()}</div>
                               <div>{new Date(sale.saleDate).toLocaleDateString()}</div>
                               <div>Vendido por: {sale.user.name}</div>
@@ -360,10 +402,14 @@ function BatchSalesContent() {
                             </div>
                           </div>
                           
-                          <div className="text-right">
-                            <div className="text-lg font-bold text-blue-600">
+                          <div className="flex flex-col items-end gap-2">
+                            <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
                               ${sale.totalAmount.toLocaleString()}
                             </div>
+                            <Button variant="outline" size="sm" onClick={() => handleEditSale(sale)}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Editar
+                            </Button>
                           </div>
                         </div>
                       </div>

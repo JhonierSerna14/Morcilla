@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { formatBatchName, formatCurrency, formatDateForDisplay } from '@/lib/batch-utils';
 
+import Link from 'next/link';
+
 interface BatchDetails {
   id: string;
   name: string;
@@ -300,6 +302,37 @@ export default function BatchDetailPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Navegación rápida */}
+      <div className="grid gap-4 md:grid-cols-3 mb-8">
+        <Link href={`/batches/sales?id=${batchId}`}>
+          <Button variant="outline" className="w-full justify-start h-14 bg-card hover:bg-accent/10 border-border">
+            <Scale className="w-5 h-5 mr-3 text-primary" />
+            <div className="text-left leading-tight">
+              <div className="font-semibold text-foreground">Ver ventas de esta tanda</div>
+              <div className="text-xs text-muted-foreground">Listado detallado y edición</div>
+            </div>
+          </Button>
+        </Link>
+        <Link href={`/customers?batchId=${batchId}&onlyWithDebt=true`}>
+          <Button variant="outline" className="w-full justify-start h-14 bg-card hover:bg-destructive/10 border-border">
+            <AlertCircle className="w-5 h-5 mr-3 text-destructive" />
+            <div className="text-left leading-tight">
+              <div className="font-semibold text-foreground">Deudores de esta tanda</div>
+              <div className="text-xs text-muted-foreground">En el directorio de clientes</div>
+            </div>
+          </Button>
+        </Link>
+        <Link href={`/customers?batchId=${batchId}&onlyPaid=true`}>
+          <Button variant="outline" className="w-full justify-start h-14 bg-card hover:bg-green-500/10 border-border">
+            <CheckCircle className="w-5 h-5 mr-3 text-green-600" />
+            <div className="text-left leading-tight">
+              <div className="font-semibold text-foreground">Pagados en esta tanda</div>
+              <div className="text-xs text-muted-foreground">En el directorio de clientes</div>
+            </div>
+          </Button>
+        </Link>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

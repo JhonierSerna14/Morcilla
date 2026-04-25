@@ -240,21 +240,21 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <Link href="/customers?onlyPaid=true">
+                      <Link href={`/customers?onlyPaid=true&batchId=${activeBatch.id}`}>
                         <div className="flex justify-between items-center p-4 bg-accent text-accent-foreground rounded-lg border-2 border-accent/50 font-semibold text-base hover:bg-accent/80 transition-shadow cursor-pointer group">
-                          <span className="group-hover:underline">✅ Clientes que pagaron</span>
+                          <span className="group-hover:underline">✅ Pagaron de esta tanda</span>
                           <span className="text-2xl">{batchDetails.paidCustomersCount}</span>
                         </div>
                       </Link>
-                      <Link href="/customers?onlyWithDebt=true">
+                      <Link href={`/customers?onlyWithDebt=true&batchId=${activeBatch.id}`}>
                         <div className="flex justify-between items-center p-4 bg-secondary text-secondary-foreground rounded-lg border-2 border-secondary/50 font-semibold text-base hover:bg-secondary/80 transition-shadow cursor-pointer group">
-                          <span className="group-hover:underline">⏳ Clientes que deben</span>
+                          <span className="group-hover:underline">⏳ Deben de esta tanda</span>
                           <span className="text-2xl">{batchDetails.debtorsCount}</span>
                         </div>
                       </Link>
-                      <Link href="/customers">
+                      <Link href={`/customers?batchId=${activeBatch.id}`}>
                         <div className="flex justify-between items-center p-4 bg-primary text-primary-foreground rounded-lg border-2 border-primary/50 font-semibold text-base hover:bg-primary/80 transition-shadow cursor-pointer group">
-                          <span className="group-hover:underline">👥 Total de clientes</span>
+                          <span className="group-hover:underline">👥 Compraron de esta tanda</span>
                           <span className="text-2xl">{batchDetails.totalCustomers}</span>
                         </div>
                       </Link>

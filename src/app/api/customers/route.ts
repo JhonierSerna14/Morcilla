@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     const onlyWithDebt = searchParams.get("onlyWithDebt") === "true"
     const onlyPaid = searchParams.get("onlyPaid") === "true"
     const customerId = searchParams.get("id")
-
+    const batchId = searchParams.get("batchId")
     // Si se solicita un cliente específico por ID
     if (customerId) {
       const customer = await prisma.customer.findUnique({
@@ -45,6 +45,56 @@ export async function GET(request: Request) {
       }
 
       return NextResponse.json([customer]) // Retorno como array para compatibilidad
+    }
+
+    if (batchId) {
+      const customers = await prisma.customer.findMany({
+        where: {
+          active: true,
+          ...(search ? {
+            OR: [
+              { name: { contains: search, mode: "insensitive" } },
+              { phone: { contains: search, mode: "insensitive" } },
+            ]
+          } : {})
+        },
+        include: {
+          sales: {
+            where: { batchId },
+            include: { batch: { select: { name: true } } }
+          },
+          collections: {
+            where: { batchId }
+          }
+        },
+        orderBy: { name: "asc" }
+      })
+
+      // Calcular deuda y pagos solo para esta tanda y filtrar en memoria
+      const filteredCustomers = customers.map(c => {
+        const batchCreditSalesAmount = c.sales.filter(s => s.paymentStatus === 'PENDING').reduce((sum, s) => sum + s.totalAmount, 0)
+        const batchPaidSalesAmount = c.sales.filter(s => s.paymentStatus === 'PAID').reduce((sum, s) => sum + s.totalAmount, 0)
+        const batchCollectionsAmount = c.collections.reduce((sum, col) => sum + col.amount, 0)
+        
+        const computedDebt = batchCreditSalesAmount - batchCollectionsAmount
+        const computedPaid = batchPaidSalesAmount + batchCollectionsAmount
+        
+        return {
+          ...c,
+          totalDebt: Math.max(0, computedDebt), // Reemplazamos la totalDebt general por la de esta tanda
+          totalPaid: computedPaid
+        }
+      }).filter(c => {
+        // Exclude those with absolutely no activity in this batch to keep the list clean?
+        // Let's only include them if they have sales or collections in this batch
+        if (c.sales.length === 0 && c.collections.length === 0) return false;
+
+        if (onlyWithDebt && c.totalDebt <= 0) return false;
+        if (onlyPaid && c.totalDebt === 0 && c.totalPaid <= 0) return false;
+        return true;
+      })
+
+      return NextResponse.json(filteredCustomers)
     }
 
     const customers = await prisma.customer.findMany({

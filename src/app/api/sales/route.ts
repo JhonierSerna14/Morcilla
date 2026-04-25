@@ -24,7 +24,9 @@ export async function GET(request: Request) {
       include: {
         customer: { select: { id: true, name: true, phone: true } },
         user: { select: { id: true, name: true } },
-        batch: { select: { id: true, name: true, number: true } }
+        batch: { select: { id: true, name: true, number: true } },
+        // Traemos los cobros relacionados a este cliente para esta tanda y saber si está pagada.
+        // Aunque no hay una relación directa de `Sale` a `Collection`, sí de `Collection` a `Customer` y `Batch`. 
       },
       orderBy: { saleDate: "desc" }
     })

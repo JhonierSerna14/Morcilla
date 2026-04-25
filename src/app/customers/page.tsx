@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Search, Users, Phone, MapPin, DollarSign, AlertCircle } from "lucide-react"
 
+import { formatBatchName } from "@/lib/batch-utils"
+
 interface Customer {
   id: string
   name: string
@@ -18,14 +20,23 @@ interface Customer {
   collections: any[]
 }
 
+interface BatchInfo {
+  id: string
+  name: string
+  number: number
+  status: string
+}
+
 function CustomersContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [customers, setCustomers] = useState<Customer[]>([])
+  const [batches, setBatches] = useState<BatchInfo[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [showOnlyWithDebt, setShowOnlyWithDebt] = useState(searchParams.get('onlyWithDebt') === 'true')
   const [showOnlyPaid, setShowOnlyPaid] = useState(searchParams.get('onlyPaid') === 'true')
+  const [filterBatchId, setFilterBatchId] = useState(searchParams.get('batchId') || "all")
   const [showCreateForm, setShowCreateForm] = useState(false)
   
   // Refs
@@ -38,9 +49,17 @@ function CustomersContent() {
     address: ""
   })
 
+  // Load batches once
+  useEffect(() => {
+    fetch('/api/batches')
+      .then(res => res.json())
+      .then(data => setBatches(data || []))
+      .catch(err => console.error("Error fetching batches:", err))
+  }, [])
+
   useEffect(() => {
     fetchCustomers()
-  }, [search, showOnlyWithDebt, showOnlyPaid])
+  }, [search, showOnlyWithDebt, showOnlyPaid, filterBatchId])
 
   // Scroll to customers list when opened from dashboard with onlyWithDebt filter
   useEffect(() => {
@@ -58,6 +77,7 @@ function CustomersContent() {
       if (search) params.append("search", search)
       if (showOnlyWithDebt) params.append("onlyWithDebt", "true")
       if (showOnlyPaid) params.append("onlyPaid", "true")
+      if (filterBatchId && filterBatchId !== "all") params.append("batchId", filterBatchId)
       
       const response = await fetch(`/api/customers?${params}`)
       const data = await response.json()
@@ -152,17 +172,32 @@ function CustomersContent() {
               placeholder="🔍 Buscar por nombre o teléfono..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-12 text-base"
+              className="pl-12 text-base h-12"
             />
+          </div>
+          <div className="sm:w-[250px]">
+            <select 
+              value={filterBatchId} 
+              onChange={(e) => {
+                const v = e.target.value
+                setFilterBatchId(v)
+              }}
+              className="flex h-12 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="all">Todas las tandas</option>
+              {batches.map(b => (
+                <option key={b.id} value={b.id}>{formatBatchName(b as any)}</option>
+              ))}
+            </select>
           </div>
         </div>
 
         {/* Active Filter Indicator */}
-        {(showOnlyWithDebt || showOnlyPaid) && (
+        {(showOnlyWithDebt || showOnlyPaid || filterBatchId !== 'all') && (
           <div className="mb-6 flex items-center justify-between bg-primary/5 p-4 rounded-lg border border-primary/20">
             <div className="flex items-center text-primary font-medium">
               <AlertCircle className="w-5 h-5 mr-2" />
-              {showOnlyWithDebt ? "Mostrando solo clientes con deuda" : "Mostrando solo clientes al día"}
+              Mostrando clientes {showOnlyWithDebt ? 'con deuda ' : (showOnlyPaid ? 'al día ' : '')}{filterBatchId !== 'all' ? `en ${batches.find(b => b.id === filterBatchId)?.name || 'tanda seleccionada'}` : 'en total'}
             </div>
             <Button 
               variant="ghost" 
@@ -170,11 +205,12 @@ function CustomersContent() {
               onClick={() => {
                 setShowOnlyWithDebt(false)
                 setShowOnlyPaid(false)
+                setFilterBatchId('all')
                 router.replace('/customers')
               }}
               className="text-primary hover:text-primary/80"
             >
-              Ver todos los clientes
+              Ver todos
             </Button>
           </div>
         )}
@@ -301,13 +337,13 @@ function CustomersContent() {
                       }`}>
                         ${Number(customer.totalDebt).toLocaleString()}
                       </div>
-                      <div className="text-xs text-muted-foreground">💰 Debe</div>
+                      <div className="text-xs text-muted-foreground whitespace-pre-wrap">💰 {filterBatchId !== 'all' ? 'Debe en esta tanda' : 'Debe'}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-primary">
                         ${Number(customer.totalPaid).toLocaleString()}
                       </div>
-                      <div className="text-xs text-muted-foreground">✅ Pagado</div>
+                      <div className="text-xs text-muted-foreground whitespace-pre-wrap">✅ {filterBatchId !== 'all' ? 'Pagado en esta tanda' : 'Pagado'}</div>
                     </div>
                   </div>
                   
