@@ -4,11 +4,12 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/toast"
-import { AlertCircle, AlertTriangle } from "lucide-react"
+import { AlertCircle, AlertTriangle, Trash2 } from "lucide-react"
 
 export function SaleEditModal({ sale, isOpen, onClose, onSave }: any) {
   const [loading, setLoading] = useState(false)
-  const { success, error, warning, ToastContainer } = useToast()
+  const [deleting, setDeleting] = useState(false)
+  const { success, error, ToastContainer } = useToast()
 
   const [formData, setFormData] = useState<{
     pounds: string;
@@ -86,6 +87,37 @@ export function SaleEditModal({ sale, isOpen, onClose, onSave }: any) {
       error(err.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!sale) return
+
+    const confirmed = window.confirm(
+      `Eliminar esta venta de ${sale.customer?.name} por $${sale.totalAmount.toLocaleString('es-CO')}?\n\nSe ajustara la caja de ${sale.user?.name || 'la persona que vendio'} y los totales del cliente.`
+    )
+
+    if (!confirmed) return
+
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/sales/${sale.id}`, {
+        method: "DELETE"
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Error al eliminar venta")
+      }
+
+      success("Venta eliminada y caja ajustada")
+
+      onSave()
+      onClose()
+    } catch (err: any) {
+      error(err.message)
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -202,10 +234,20 @@ export function SaleEditModal({ sale, isOpen, onClose, onSave }: any) {
                 )}
 
                 <div className="flex justify-end gap-2 pt-4 mt-2 border-t">
-                  <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={handleDelete}
+                    disabled={loading || deleting}
+                    className="mr-auto"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    {deleting ? "Eliminando..." : "Eliminar"}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={onClose} disabled={loading || deleting}>
                     Cancelar
                   </Button>
-                  <Button type="submit" disabled={loading}>
+                  <Button type="submit" disabled={loading || deleting}>
                     {loading ? "Guardando..." : "Guardar Cambios"}
                   </Button>
                 </div>
